@@ -1,0 +1,1074 @@
+<title>TDK Release Bench</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+
+<style>
+:root{
+  --bg:#F2F4F2; --surface:#FFFFFF; --surface-2:#E9EDEA; --surface-3:#DFE6E2;
+  --line:#D2DAD5; --line-strong:#B8C4BE;
+  --ink:#14201C; --ink-2:#4A5A54; --ink-3:#74857E;
+  --accent:#176A57; --accent-ink:#FFFFFF; --accent-soft:#DCEBE5;
+  --copper:#A6592C;
+  --ok:#2E7D52; --warn:#8E5C12; --crit:#A33B2E;
+  --shadow:0 1px 2px rgba(20,32,28,.06), 0 8px 24px -16px rgba(20,32,28,.28);
+  --radius:6px;
+  --sans:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1412; --surface:#161E1B; --surface-2:#1D2724; --surface-3:#243029;
+    --line:#2B3833; --line-strong:#3B4C45;
+    --ink:#E6EDE9; --ink-2:#A8B8B2; --ink-3:#7C8D87;
+    --accent:#4FB99A; --accent-ink:#06120E; --accent-soft:#16302A;
+    --copper:#D08B57;
+    --ok:#57C08A; --warn:#D6A455; --crit:#E0796A;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1412; --surface:#161E1B; --surface-2:#1D2724; --surface-3:#243029;
+  --line:#2B3833; --line-strong:#3B4C45;
+  --ink:#E6EDE9; --ink-2:#A8B8B2; --ink-3:#7C8D87;
+  --accent:#4FB99A; --accent-ink:#06120E; --accent-soft:#16302A;
+  --copper:#D08B57;
+  --ok:#57C08A; --warn:#D6A455; --crit:#E0796A;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.7);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:var(--sans); font-size:15px; line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{margin:0; text-wrap:balance; font-weight:600; letter-spacing:-.01em}
+p{margin:0}
+a{color:var(--accent)}
+
+.eyebrow{
+  font-family:var(--mono); font-size:11px; text-transform:uppercase;
+  letter-spacing:.13em; color:var(--ink-3); font-weight:500;
+}
+
+/* ---------- header ---------- */
+header{
+  position:sticky; top:0; z-index:20;
+  background:var(--surface); border-bottom:1px solid var(--line);
+}
+.headbar{
+  max-width:1360px; margin:0 auto; padding:14px 22px;
+  display:flex; align-items:center; gap:18px; flex-wrap:wrap;
+}
+.brand{display:flex; flex-direction:column; gap:1px; margin-right:auto}
+.brand h1{font-size:17px; letter-spacing:-.02em}
+.brand .sub{font-size:12.5px; color:var(--ink-3)}
+.meter{display:flex; align-items:center; gap:10px}
+.meter .track{
+  width:150px; height:7px; border-radius:99px;
+  background:var(--surface-3); overflow:hidden;
+}
+.meter .fill{
+  height:100%; width:0%; background:var(--accent);
+  transition:width .35s ease;
+}
+.meter .num{
+  font-family:var(--mono); font-size:12px; color:var(--ink-2);
+  font-variant-numeric:tabular-nums; white-space:nowrap;
+}
+.langchip{
+  font-family:var(--mono); font-size:11px; letter-spacing:.06em;
+  border:1px solid var(--line-strong); color:var(--ink-2);
+  padding:4px 9px; border-radius:99px; white-space:nowrap;
+}
+
+/* ---------- layout ---------- */
+main{
+  max-width:1360px; margin:0 auto; padding:22px;
+  display:grid; gap:22px; grid-template-columns:minmax(0,1fr);
+  align-items:start;
+}
+@media (min-width:1080px){
+  main{grid-template-columns:minmax(0,1.02fr) minmax(0,1fr)}
+  .col-out{position:sticky; top:74px; max-height:calc(100vh - 96px); display:flex; flex-direction:column}
+}
+.col-in,.col-out{display:flex; flex-direction:column; gap:18px; min-width:0}
+
+.note{
+  background:var(--accent-soft); border:1px solid var(--line);
+  border-left:3px solid var(--accent);
+  border-radius:var(--radius); padding:12px 14px;
+  font-size:13.5px; color:var(--ink-2); display:flex; flex-direction:column; gap:6px;
+}
+.note strong{color:var(--ink); font-weight:600}
+
+.card{
+  background:var(--surface); border:1px solid var(--line);
+  border-radius:var(--radius); box-shadow:var(--shadow);
+  display:flex; flex-direction:column; min-width:0;
+}
+.card > header{
+  position:static; background:transparent; border:0;
+  border-bottom:1px solid var(--line);
+  padding:13px 16px; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
+}
+.card > header h2{font-size:14.5px}
+.card > header .hint{font-size:12.5px; color:var(--ink-3); margin-left:auto}
+.step{
+  font-family:var(--mono); font-size:11px; font-weight:500;
+  color:var(--accent-ink); background:var(--accent);
+  width:19px; height:19px; border-radius:3px;
+  display:grid; place-items:center; flex:none; align-self:center;
+}
+.body{padding:16px; display:flex; flex-direction:column; gap:15px}
+
+/* ---------- fields ---------- */
+.field{display:flex; flex-direction:column; gap:5px; min-width:0}
+.field label{
+  font-family:var(--mono); font-size:11px; text-transform:uppercase;
+  letter-spacing:.09em; color:var(--ink-2); font-weight:500;
+  display:flex; align-items:center; gap:6px;
+}
+.req{color:var(--copper); font-size:13px; line-height:1}
+.field .help{font-size:12.5px; color:var(--ink-3); line-height:1.45}
+.row{display:grid; gap:15px; grid-template-columns:1fr}
+@media (min-width:560px){ .row.two{grid-template-columns:1fr 1fr} }
+
+input[type=text], input[type=date], select, textarea{
+  font-family:var(--sans); font-size:14px; color:var(--ink);
+  background:var(--surface-2); border:1px solid var(--line-strong);
+  border-radius:5px; padding:9px 10px; width:100%;
+  transition:border-color .15s ease, background .15s ease;
+}
+textarea{resize:vertical; min-height:70px; line-height:1.5}
+textarea.tall{min-height:190px; font-family:var(--mono); font-size:12.5px}
+input:focus-visible, select:focus-visible, textarea:focus-visible,
+button:focus-visible, .tab:focus-visible, .drop:focus-visible{
+  outline:2px solid var(--accent); outline-offset:2px;
+}
+input::placeholder, textarea::placeholder{color:var(--ink-3)}
+select{appearance:none; background-image:none; cursor:pointer}
+
+.check{
+  display:flex; gap:9px; align-items:flex-start;
+  font-size:13.5px; color:var(--ink-2); cursor:pointer;
+}
+.check input{margin:3px 0 0; accent-color:var(--accent); flex:none}
+.check b{color:var(--ink); font-weight:600; display:block; font-size:14px}
+
+.modes{display:flex; flex-direction:column; gap:9px}
+.mode{
+  display:flex; gap:10px; align-items:flex-start; cursor:pointer;
+  border:1px solid var(--line-strong); border-radius:5px; padding:11px 12px;
+  background:var(--surface-2); transition:border-color .15s ease, background .15s ease;
+}
+.mode:hover{border-color:var(--accent)}
+.mode input{margin:3px 0 0; accent-color:var(--accent); flex:none}
+.mode b{display:block; font-size:14px; color:var(--ink); font-weight:600}
+.mode span{font-size:12.5px; color:var(--ink-3)}
+.mode.on{border-color:var(--accent); background:var(--accent-soft)}
+
+/* ---------- datasheet drop ---------- */
+.drop{
+  border:1px dashed var(--line-strong); border-radius:5px;
+  background:var(--surface-2); padding:10px 12px;
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  font-size:13px; color:var(--ink-3); cursor:pointer;
+  transition:border-color .15s ease, background .15s ease;
+}
+.drop.over{border-color:var(--accent); background:var(--accent-soft); color:var(--ink-2)}
+.counts{
+  font-family:var(--mono); font-size:11.5px; color:var(--ink-3);
+  font-variant-numeric:tabular-nums; margin-left:auto;
+}
+
+/* ---------- buttons ---------- */
+button{
+  font-family:var(--sans); font-size:13px; font-weight:600;
+  border-radius:5px; border:1px solid var(--line-strong);
+  background:var(--surface-2); color:var(--ink);
+  padding:8px 13px; cursor:pointer;
+  transition:background .15s ease, border-color .15s ease, color .15s ease;
+}
+button:hover{border-color:var(--accent); color:var(--accent)}
+button.primary{background:var(--accent); border-color:var(--accent); color:var(--accent-ink)}
+button.primary:hover{filter:brightness(1.08); color:var(--accent-ink)}
+button.ghost{background:transparent}
+button[disabled]{opacity:.45; cursor:not-allowed; filter:none}
+button[disabled]:hover{border-color:var(--line-strong); color:var(--ink)}
+
+/* ---------- readiness ---------- */
+.gate{display:flex; flex-direction:column; gap:9px}
+.gaterow{
+  display:flex; align-items:center; gap:9px; font-size:13.5px;
+  color:var(--ink-2); padding:2px 0;
+}
+.dot{width:8px; height:8px; border-radius:99px; background:var(--line-strong); flex:none}
+.gaterow.done .dot{background:var(--ok)}
+.gaterow.done{color:var(--ink-3); text-decoration:line-through; text-decoration-color:var(--line-strong)}
+.gaterow .what{color:var(--ink); font-weight:500}
+.gaterow.done .what{color:var(--ink-3); font-weight:400}
+
+.flags{display:flex; flex-direction:column; gap:7px}
+.flag{
+  display:flex; gap:9px; align-items:flex-start; font-size:13px;
+  border-left:3px solid var(--warn); background:var(--surface-2);
+  padding:8px 11px; border-radius:0 4px 4px 0; color:var(--ink-2);
+}
+.flag.crit{border-left-color:var(--crit)}
+.flag code{font-family:var(--mono); font-size:12px; color:var(--copper)}
+.clean{font-size:13px; color:var(--ink-3); display:flex; gap:8px; align-items:center}
+.clean .dot{background:var(--ok)}
+
+/* ---------- output ---------- */
+.tabs{display:flex; gap:2px; padding:0 10px; border-bottom:1px solid var(--line); flex-wrap:wrap}
+.tab{
+  font-family:var(--sans); font-size:13px; font-weight:600;
+  background:transparent; border:0; border-bottom:2px solid transparent;
+  color:var(--ink-3); padding:11px 10px; cursor:pointer; border-radius:0;
+}
+.tab:hover{color:var(--ink)}
+.tab[aria-selected="true"]{color:var(--ink); border-bottom-color:var(--accent)}
+.outwrap{display:flex; flex-direction:column; min-height:0; flex:1}
+.outbar{
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  padding:11px 14px; border-bottom:1px solid var(--line); background:var(--surface-2);
+}
+.outbar .cap{font-size:12.5px; color:var(--ink-3); margin-right:auto}
+pre.out{
+  margin:0; padding:16px; overflow:auto; flex:1; min-height:240px; max-height:56vh;
+  font-family:var(--mono); font-size:12.5px; line-height:1.62;
+  white-space:pre-wrap; word-break:break-word; color:var(--ink);
+  background:var(--surface);
+}
+@media (min-width:1080px){ pre.out{max-height:none} }
+pre.out.doc{font-family:var(--serif); font-size:14.5px; line-height:1.65}
+.empty{
+  padding:40px 22px; text-align:center; color:var(--ink-3); font-size:13.5px;
+  display:flex; flex-direction:column; gap:6px; align-items:center;
+}
+.empty b{color:var(--ink-2); font-weight:600; font-size:14px}
+
+.preflight{padding:16px; display:flex; flex-direction:column; gap:13px; overflow:auto}
+.pf-group{display:flex; flex-direction:column; gap:7px}
+.pf-group h3{font-size:12.5px; font-family:var(--mono); text-transform:uppercase; letter-spacing:.09em; color:var(--ink-3); font-weight:500}
+.pf{display:flex; gap:9px; align-items:flex-start; font-size:13.5px; color:var(--ink-2)}
+.pf .box{
+  width:13px; height:13px; border:1px solid var(--line-strong); border-radius:3px;
+  flex:none; margin-top:4px;
+}
+.pf b{color:var(--ink); font-weight:600}
+
+footer{
+  max-width:1360px; margin:0 auto; padding:6px 22px 40px;
+  font-size:12.5px; color:var(--ink-3); line-height:1.6;
+}
+.toast{
+  position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(8px);
+  background:var(--ink); color:var(--bg); font-size:13px; font-weight:600;
+  padding:9px 16px; border-radius:99px; opacity:0; pointer-events:none;
+  transition:opacity .2s ease, transform .2s ease; z-index:60;
+}
+.toast.on{opacity:1; transform:translateX(-50%) translateY(0)}
+@media (prefers-reduced-motion: reduce){ *{transition:none !important; animation:none !important} }
+</style>
+
+<header>
+  <div class="headbar">
+    <div class="brand">
+      <h1>TDK Release Bench</h1>
+      <div class="sub">Datasheet and marketing brief in &rarr; briefing packet and document scaffold out</div>
+    </div>
+    <div class="langchip">American English in &amp; out</div>
+    <div class="meter">
+      <div class="track"><div class="fill" id="fill"></div></div>
+      <div class="num" id="ready">0 / 7 required</div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="col-in">
+
+    <div class="note">
+      <p><strong>What this bench does.</strong> It collects the two inputs a TDK press release needs, assembles every fixed part of the document for you, and packages the whole thing as one briefing packet you paste into Claude to write the prose.</p>
+      <p>It does not write the release itself &mdash; a published page cannot call a language model, so the drafting step stays in Claude, where the <code>tdk-press-release</code> skill applies the same rules encoded here.</p>
+    </div>
+
+    <section class="card">
+      <header><span class="step">1</span><h2>Datasheet</h2><span class="hint">Source of every number</span></header>
+      <div class="body">
+        <div class="field">
+          <label for="datasheet"><span class="req">&bull;</span> Datasheet or spec sheet text</label>
+          <p class="help">Paste the full text: series name, ordering codes, electrical ranges, dimensions, temperature range, standards, lifetime figures. Every figure in the release has to trace back to something in here.</p>
+          <textarea id="datasheet" name="datasheet" class="tall" placeholder="Paste the datasheet text here&hellip;"></textarea>
+          <div class="drop" id="drop" tabindex="0" role="button">
+            <span>Drop a .txt, .md or .csv file here, or click to choose one</span>
+            <span class="counts" id="dscount">0 characters</span>
+          </div>
+          <input type="file" id="file" accept=".txt,.md,.csv,.tsv,.json,text/plain" hidden>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <header><span class="step">2</span><h2>Product marketing form</h2><span class="hint">Positioning the datasheet cannot settle</span></header>
+      <div class="body">
+        <div class="row two">
+          <div class="field">
+            <label for="productName"><span class="req">&bull;</span> Product or series name</label>
+            <input type="text" id="productName" name="productName" placeholder="e.g. B32778 series">
+          </div>
+          <div class="field">
+            <label for="category"><span class="req">&bull;</span> Category eyebrow</label>
+            <input type="text" id="category" name="category" list="cats" placeholder="e.g. Film capacitors">
+            <datalist id="cats">
+              <option value="Inductors"></option><option value="Power Capacitors"></option>
+              <option value="Film capacitors"></option><option value="Aluminum electrolytic capacitors"></option>
+              <option value="High-voltage contactors"></option><option value="Surge protection"></option>
+              <option value="Transformers"></option><option value="Ceramic capacitors"></option>
+              <option value="NTC thermistors"></option>
+            </datalist>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="newsType">News type</label>
+          <p class="help">Sets the verb in the lede &mdash; a brand-new part and a series extension do not get the same one.</p>
+          <select id="newsType" name="newsType">
+            <option value="new">New product or series &rarr; introduces / presents</option>
+            <option value="extension">Extension of an existing series &rarr; extends</option>
+            <option value="variant">New variant or option added &rarr; adds</option>
+            <option value="rating">Higher rating or new approval &rarr; extends / enables</option>
+            <option value="capability">New capability for an application &rarr; enables</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="usp"><span class="req">&bull;</span> USP &mdash; the single differentiator</label>
+          <p class="help">One thing, not five. The spec or property that carries the headline.</p>
+          <textarea id="usp" name="usp" placeholder="e.g. Highest capacitance density in the 700 V DC class, at unchanged case size"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="uspWhy"><span class="req">&bull;</span> Why that matters to the engineer</label>
+          <p class="help">The engineering consequence, not the spec restated. What does it prevent, save, or enable in the target system?</p>
+          <textarea id="uspWhy" name="uspWhy" placeholder="e.g. Lets designers hold DC link ripple within limits without growing the PCB footprint or adding a second bank"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="targetMarkets"><span class="req">&bull;</span> Target markets and customers</label>
+          <textarea id="targetMarkets" name="targetMarkets" placeholder="e.g. Industrial drives, solar inverters, EV charging infrastructure; power electronics design engineers at tier-1 suppliers"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="customerValue">Customer value beyond the USP</label>
+          <textarea id="customerValue" name="customerValue" placeholder="e.g. Drop-in replacement for the previous series; qualification data already available; second source avoided"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="keySpecs">Specs to foreground</label>
+          <p class="help">Which figures from the datasheet belong in paragraphs one and two. Leave empty and the drafting step picks them.</p>
+          <textarea id="keySpecs" name="keySpecs" placeholder="e.g. 700 V DC rated voltage, 1.5 to 75 &micro;F, up to 100 A rms, &minus;40 to +105 &deg;C"></textarea>
+        </div>
+
+        <div class="row two">
+          <div class="field">
+            <label for="standards">Standards and qualifications</label>
+            <input type="text" id="standards" name="standards" placeholder="e.g. AEC-Q200 Rev. E, IEC 61071, RoHS">
+          </div>
+          <div class="field">
+            <label for="designTools">TDK design tool for this part</label>
+            <input type="text" id="designTools" name="designTools" placeholder="e.g. CapThermal, AlCap Useful Life Calculator">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="applications">Main applications</label>
+          <p class="help">One per line. These become the bulleted list, or prose in strict-brief mode.</p>
+          <textarea id="applications" name="applications" placeholder="DC link in industrial drives&#10;Solar and wind inverters&#10;EV charging stations"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="features">Main features and benefits</label>
+          <p class="help">One per line. Short phrases, no periods &mdash; the TDK convention.</p>
+          <textarea id="features" name="features" placeholder="Very high voltage rating&#10;Self-healing metallized polypropylene film&#10;Design complies with IEC 61071&#10;RoHS-compatible"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="competitive">Competitive positioning</label>
+          <textarea id="competitive" name="competitive" placeholder="Optional. How this sits against the previous generation or the market &mdash; only claims you can defend with a number or a standard."></textarea>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <header><span class="step">3</span><h2>Release settings</h2><span class="hint">Dateline, fixed blocks, conventions</span></header>
+      <div class="body">
+        <div class="row two">
+          <div class="field">
+            <label for="releaseDate"><span class="req">&bull;</span> Release date</label>
+            <p class="help">Sets the dateline and the dated download path.</p>
+            <input type="date" id="releaseDate" name="releaseDate">
+          </div>
+          <div class="field">
+            <label for="slug">Product category slug</label>
+            <p class="help">The path segment on tdk-electronics.tdk.com.</p>
+            <input type="text" id="slug" name="slug" list="slugs" placeholder="e.g. emi_capacitors">
+            <datalist id="slugs">
+              <option value="power_chokes"></option><option value="dc_cyl"></option>
+              <option value="emi_capacitors"></option><option value="alu_snap"></option>
+              <option value="hvc_presentation"></option><option value="ntc_icl"></option>
+              <option value="transformers_igbt_fet"></option>
+            </datalist>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Length and list convention</label>
+          <div class="modes" id="modes">
+            <label class="mode on">
+              <input type="radio" name="lengthMode" value="examples" checked>
+              <span>
+                <b>Match the published releases</b>
+                <span>250&ndash;400 words of body prose, plus bulleted &ldquo;Main applications&rdquo; and &ldquo;Main features and benefits&rdquo;. This is how all seven reference releases are built.</span>
+              </span>
+            </label>
+            <label class="mode">
+              <input type="radio" name="lengthMode" value="strict">
+              <span>
+                <b>Strict brief</b>
+                <span>250 words total, continuous prose, no bullet lists anywhere. Applications and features get folded into the body paragraphs.</span>
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="quote">Approved quote</label>
+          <p class="help">Leave empty for the standard quote-free format. Paste only a quote a real spokesperson has approved &mdash; nothing here gets invented.</p>
+          <textarea id="quote" name="quote" placeholder="&ldquo;&hellip;&rdquo; &mdash; Name, Title, TDK Electronics"></textarea>
+        </div>
+
+        <label class="check"><input type="checkbox" id="specsTable" name="specsTable">
+          <span><b>Include a specs / ordering-code table</b>Omitted by default. Rows come from the datasheet only &mdash; never interpolated.</span></label>
+
+        <label class="check"><input type="checkbox" id="epcos" name="epcos">
+          <span><b>Include EPCOS in the brand list</b>The June 2026 boilerplate omits it. Check this for EPCOS-branded product lines.</span></label>
+      </div>
+    </section>
+  </div>
+
+  <div class="col-out">
+    <section class="card">
+      <header><h2>Readiness</h2><span class="hint" id="readyHint">Both inputs required</span></header>
+      <div class="body">
+        <div class="gate" id="gate"></div>
+        <div class="flags" id="flags"></div>
+      </div>
+    </section>
+
+    <section class="card outwrap">
+      <div class="tabs" role="tablist">
+        <button class="tab" id="tab-brief" role="tab" aria-selected="true" data-pane="brief">Briefing packet</button>
+        <button class="tab" id="tab-scaffold" role="tab" aria-selected="false" data-pane="scaffold">Document scaffold</button>
+        <button class="tab" id="tab-preflight" role="tab" aria-selected="false" data-pane="preflight">Pre-flight</button>
+      </div>
+      <div class="outbar">
+        <span class="cap" id="outcap">Paste into Claude to draft the release</span>
+        <button class="ghost" id="copy">Copy</button>
+        <button class="ghost" id="download" hidden>Download</button>
+      </div>
+      <div id="panes" style="display:flex; flex-direction:column; flex:1; min-height:0"></div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  Fixed blocks reproduce the June 2026 boilerplate and media contacts. Sales and headcount figures, contact
+  names, and phone numbers drift between releases &mdash; verify them against the latest approved release before
+  anything goes out. Drafts stay in this browser and are not saved anywhere else.
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------------- fixed blocks ---------------- */
+var BOILER_BASE = 'TDK Corporation (TSE:6762) is a global technology company and innovation leader in the electronics industry, based in Tokyo, Japan. With the tagline "In Everything, Better" TDK aims to realize a better future across all aspects of life, industry, and society. For over 90 years, TDK has shaped the world from within; from the pioneering ferrite cores to cassette tapes that defined an era, to powering the digital age with advanced components, sensors, and batteries, leading the way towards a more sustainable future. United by TDK Venture Spirit, a start-up mentality built on visions, courage and mutual trust, TDK’s passionate team members around the globe pursue better—for ourselves, customers, partners, and the world. Today, the state-of-the-art technologies of TDK are in everything, from industrial applications, energy systems, electric vehicles, to smartphones and gaming, at the core of modern life. TDK’s comprehensive, innovative-driven portfolio includes cutting-edge passive components, sensors and sensor systems, power supplies, lithium-ion and solid-state batteries, magnetic heads, AI and enterprise software solutions, and more—featuring numerous market-leading products. These are marketed under the product brands {BRANDS}. Positioning the AI ecosystem as a key strategic area, TDK leverages its global network across the automotive, information and communication technology, and industrial equipment sectors to expand its business in a wide range of fields. In fiscal 2026, TDK posted total sales of USD 16.6 billion and employed about 107,000 people worldwide.';
+
+var BRANDS_NO_EPCOS = 'TDK, InvenSense, Micronas, Tronics, TDK-Lambda, TDK SensEI, and ATL';
+var BRANDS_EPCOS = 'TDK, EPCOS, InvenSense, Micronas, Tronics, TDK-Lambda, TDK SensEI, and ATL';
+
+var CONTACTS = [
+  ['Europe','Mr. R. HIGGELKE','TDK Electronics AG, München, Deutschland','+49 89 54020 1378','ralf.higgelke@tdk.com'],
+  ['North America','Ms. D. MARTIN','TDK Electronics Inc., Woodbridge, NJ, USA','+1 732 906 4364','debbie.martin@tdk.com'],
+  ['South America',"Mr. C. DALL'AGNOL",'TDK Electronics do Brasil Ltda., Gravataí, Brazil','+55 51 3484 7158','candido.dallagnol@tdk.com'],
+  ['India','Mr. H. BAGHEL','TDK India Private Limited, Noida, India','+91 12 04 50 58 42','himalaya.baghel@tdk.com'],
+  ['Greater China','Ms. K. Xu','TDK (Shanghai) Electronics Ltd., Shanghai, China','+86 21 2219 1598','Kathy.Xu@tdk.com'],
+  ['Japan','Mr. D. ITO','TDK Corporation, Tokyo, Japan','+813 6778 1055','TDK.PR@tdk.com']
+];
+
+var VERBS = {
+  'new':'introduces', 'extension':'extends', 'variant':'adds',
+  'rating':'extends', 'capability':'enables'
+};
+var NEWS_LABEL = {
+  'new':'New product or series', 'extension':'Extension of an existing series',
+  'variant':'New variant or option added to an existing series',
+  'rating':'Higher rating or new approval on an existing part',
+  'capability':'New capability for an application'
+};
+
+/* British spellings that must not survive into an American English release */
+var BRITISH = [
+  ['aluminium','aluminum'],['colour','color'],['behaviour','behavior'],['favour','favor'],
+  ['honour','honor'],['labour','labor'],['centre','center'],['metre','meter'],['litre','liter'],
+  ['fibre','fiber'],['calibre','caliber'],['organisation','organization'],['organise','organize'],
+  ['optimise','optimize'],['optimisation','optimization'],['minimise','minimize'],['maximise','maximize'],
+  ['standardise','standardize'],['utilise','utilize'],['analogue','analog'],['catalogue','catalog'],
+  ['programme','program'],['licence','license'],['defence','defense'],['offence','offense'],
+  ['sulphur','sulfur'],['modelling','modeling'],['labelling','labeling'],['travelling','traveling'],
+  ['earthing','grounding'],['earthed','grounded']
+];
+
+/* superlatives the reference releases never use unanchored */
+var HYPE = ['revolutionary','groundbreaking','ground-breaking','game-changing','game changing',
+  'best-in-class','best in class','cutting-edge','unparalleled','unmatched','world-class',
+  'next-generation','breakthrough','seamless','industry-leading','market-leading',"world's first",
+  "industry's first",'unrivalled','unrivaled','disruptive'];
+
+/* ---------------- state ---------------- */
+var FIELDS = ['datasheet','productName','category','newsType','usp','uspWhy','targetMarkets',
+  'customerValue','keySpecs','standards','designTools','applications','features','competitive',
+  'releaseDate','slug','quote'];
+var S = {};
+FIELDS.forEach(function(k){ S[k] = ''; });
+S.newsType = 'new';
+S.lengthMode = 'examples';
+S.specsTable = false;
+S.epcos = false;
+
+var STORE = 'tdk-release-bench-v1';
+try{
+  var saved = window.localStorage.getItem(STORE);
+  if(saved){ var o = JSON.parse(saved); Object.keys(o).forEach(function(k){ if(k in S) S[k] = o[k]; }); }
+}catch(e){}
+
+function persist(){
+  try{ window.localStorage.setItem(STORE, JSON.stringify(S)); }catch(e){}
+}
+
+/* ---------------- helpers ---------------- */
+function $(id){ return document.getElementById(id); }
+function lines(v){
+  return String(v||'').split('\n').map(function(s){ return s.trim(); }).filter(Boolean);
+}
+function bullets(v){
+  var l = lines(v);
+  return l.length ? l.map(function(s){ return '- ' + s.replace(/[.;]+$/,''); }).join('\n') : null;
+}
+var MONTHS = ['January','February','March','April','May','June','July','August',
+  'September','October','November','December'];
+function longDate(iso){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(iso||'')) return '';
+  var p = iso.split('-');
+  return MONTHS[parseInt(p[1],10)-1] + ' ' + parseInt(p[2],10) + ', ' + p[0];
+}
+function shortDate(iso){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(iso||'')) return '';
+  var p = iso.split('-');
+  return p[0].slice(2) + p[1] + p[2];
+}
+function or(v, fallback){ var t = String(v||'').trim(); return t ? t : fallback; }
+
+var toastTimer = null;
+function toast(msg){
+  var t = $('toast');
+  t.textContent = msg; t.classList.add('on');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ t.classList.remove('on'); }, 1900);
+}
+
+/* ---------------- readiness ---------------- */
+var REQUIRED = [
+  ['datasheet','Datasheet text'],
+  ['productName','Product or series name'],
+  ['category','Category eyebrow'],
+  ['usp','USP'],
+  ['uspWhy','Why the USP matters'],
+  ['targetMarkets','Target markets'],
+  ['releaseDate','Release date']
+];
+function missing(){
+  return REQUIRED.filter(function(r){ return !String(S[r[0]]||'').trim(); });
+}
+function ready(){ return missing().length === 0; }
+
+function renderGate(){
+  var g = $('gate'); g.innerHTML = '';
+  REQUIRED.forEach(function(r){
+    var done = !!String(S[r[0]]||'').trim();
+    var row = document.createElement('div');
+    row.className = 'gaterow' + (done ? ' done' : '');
+    row.innerHTML = '<span class="dot"></span><span class="what"></span>';
+    row.querySelector('.what').textContent = r[1];
+    g.appendChild(row);
+  });
+  var have = REQUIRED.length - missing().length;
+  $('ready').textContent = have + ' / ' + REQUIRED.length + ' required';
+  $('fill').style.width = Math.round(have / REQUIRED.length * 100) + '%';
+  $('readyHint').textContent = ready() ? 'Ready to hand off' : missing().length + ' still open';
+}
+
+function userText(){
+  return [S.productName,S.category,S.usp,S.uspWhy,S.targetMarkets,S.customerValue,S.keySpecs,
+    S.standards,S.designTools,S.applications,S.features,S.competitive,S.datasheet].join('\n');
+}
+
+function renderFlags(){
+  var box = $('flags'); box.innerHTML = '';
+  var text = userText();
+  var low = text.toLowerCase();
+  var found = [];
+  BRITISH.forEach(function(pair){
+    var re = new RegExp('\\b' + pair[0] + '\\b','i');
+    if(re.test(text)) found.push(pair);
+  });
+  var hype = HYPE.filter(function(w){ return low.indexOf(w) !== -1; });
+
+  if(found.length){
+    var f = document.createElement('div');
+    f.className = 'flag';
+    f.innerHTML = '<span></span>';
+    f.querySelector('span').innerHTML = '<b>British spellings in your inputs.</b> ' +
+      found.map(function(p){ return '<code>' + p[0] + '</code> &rarr; <code>' + p[1] + '</code>'; }).join(', ') +
+      '. The packet already asks for American English, but fixing the source keeps the draft clean.';
+    box.appendChild(f);
+  }
+  if(hype.length){
+    var h = document.createElement('div');
+    h.className = 'flag crit';
+    h.innerHTML = '<span></span>';
+    h.querySelector('span').innerHTML = '<b>Unanchored superlatives.</b> ' +
+      hype.map(function(w){ return '<code>' + w + '</code>'; }).join(', ') +
+      '. None of the reference releases use these. Replace each with the number or standard that backs it, or drop it.';
+    box.appendChild(h);
+  }
+  if(S.quote && String(S.quote).trim()){
+    var q = document.createElement('div');
+    q.className = 'flag';
+    q.innerHTML = '<span><b>Quote supplied.</b> The reference format is quote-free. Confirm the named spokesperson has approved this wording before publication.</span>';
+    box.appendChild(q);
+  }
+  if(!box.children.length){
+    var c = document.createElement('div');
+    c.className = 'clean';
+    c.innerHTML = '<span class="dot"></span><span>No British spellings, no unanchored superlatives.</span>';
+    box.appendChild(c);
+  }
+}
+
+/* ---------------- output builders ---------------- */
+function boilerplate(){
+  return BOILER_BASE.replace('{BRANDS}', S.epcos ? BRANDS_EPCOS : BRANDS_NO_EPCOS);
+}
+function contactsBlock(){
+  return CONTACTS.map(function(c){ return c.join('  |  '); }).join('\n');
+}
+function downloadBlock(){
+  var slug = or(S.slug, '[slug — confirm with product marketing]');
+  var d = shortDate(S.releaseDate) || '[YYMMDD]';
+  return 'You can download this text and associated images from www.tdk-electronics.tdk.com/en/' + d +
+    '  [URL TBD — assigned by the web team on publication]\n' +
+    'Further information on the products can be found at www.tdk-electronics.tdk.com/en/' + slug;
+}
+
+function buildBrief(){
+  var strict = S.lengthMode === 'strict';
+  var verb = VERBS[S.newsType] || 'introduces';
+  var out = [];
+  var p = function(s){ out.push(s); };
+
+  p('You are an experienced technology and product communications manager at TDK Electronics.');
+  p('Write a product press release in American English from the material below.');
+  p('');
+  p('=== STRUCTURE (in order) ===');
+  p('1. Category eyebrow — plain text, the product category, sitting above the headline.');
+  p('2. Headline — "TDK [verb] [what] [for / with what benefit]". Factual and newsy; state the news angle and');
+  p('   usually the benefit or target application in the same sentence. Two lines is fine. No teaser, no');
+  p('   cliffhanger, no suspense.');
+  p('3. Dateline — spelled-out month, no city prefix: "' + (longDate(S.releaseDate) || '[Month DD, YYYY]') + '".');
+  p('4. Body — ' + (strict ? '2–3' : '2–4') + ' paragraphs, no subheads:');
+  p('   • Lede: open literally with "TDK Corporation (TSE:6762) ' + verb + ' the ' +
+      or(S.productName,'[product]') + '", give the one-line category and positioning, then the headline spec and');
+  p('     the target application in the same paragraph. A busy editor gets the whole story from this paragraph');
+  p('     alone. State why the USP matters — the engineering consequence, not the spec repeated.');
+  p('   • Technical: the ranges and figures that matter most to the reader, with what each translates to');
+  p('     functionally. Precise units, exactly as the datasheet writes them.');
+  p('   • Mechanical / qualification / format: construction, package, certifications, temperature range,');
+  p('     lifetime and reliability figures, available variants. Close by connecting back to the customer benefit.');
+  p('   • Design tools: only if TDK offers a tool, calculator, or SPICE model for this part (see brief below).');
+  if(strict){
+    p('5. Fixed blocks: About TDK Corporation, download links, media contacts — verbatim from below.');
+  } else {
+    p('5. Divider "-----", then "Main applications" as a bullet list — short noun phrases, no periods.');
+    p('6. "Main features and benefits" as a bullet list — short phrases, no periods; mix of plain specs and');
+    p('   named standards compliance.');
+    p('7. ' + (S.specsTable
+        ? 'A specs / ordering-code table — ordering code plus the 2–4 key electrical parameters, units in the'
+        : 'No specs table (omitted by standing convention).'));
+    if(S.specsTable){
+      p('   column headers. Take every row from the datasheet; never interpolate a missing one.');
+    }
+    p('8. Divider, then the fixed blocks below verbatim: About TDK Corporation, download links, media contacts.');
+  }
+  p('');
+  p('=== LENGTH AND LISTS ===');
+  if(strict){
+    p('250 words maximum for the whole release, continuous prose throughout. No bullet lists anywhere — fold');
+    p('applications and features into the body paragraphs. Do not pad to reach the count.');
+  } else {
+    p('250–400 words of body prose, not counting bullets, tables, or boilerplate. Keep the two bulleted');
+    p('sections. Let the source material set the natural length inside that range — do not pad to hit a count,');
+    p('and do not cut a material spec to shorten it.');
+  }
+  p('');
+  p('=== VOICE ===');
+  p('Strunk & White and Zinsser: clarity, simplicity, readability. Active voice and active verbs — "enables",');
+  p('not "is designed to enable". Concise sentences, smooth transitions, every sentence earning its place.');
+  p('Technical terms are expected — the readers are electrical engineers and decision-makers in the');
+  p('electronics industry — but no buzzword padding. Third person: "TDK Corporation (TSE:6762)" on first');
+  p('mention, "TDK" after. Analogies only where they genuinely aid understanding, only in body prose, never in');
+  p('the headline or lede. Solution-oriented, formal, confident, never hyped.');
+  p('');
+  p('=== HARD RULES ===');
+  p('• American English throughout: spelling (aluminum, color, optimize, catalog, analog, meter) and');
+  p('  month-day-year dates.');
+  p('• Never invent a spec, a certification, a figure, or a URL. Every number traces to the datasheet below.');
+  p('  Do not round, estimate, or fill a gap with a plausible figure.');
+  p('• Reproduce units and standards exactly as the datasheet writes them: "+70 °C", "1250 V DC",');
+  p('  "AEC-Q200 Rev. E", "IEC 60938-2". Do not normalize or "fix" them.');
+  p('• No superlative without a number or a standard behind it. "Groundbreaking" and "revolutionary" never');
+  p('  appear in a TDK release.');
+  p(S.quote && String(S.quote).trim()
+      ? '• Use the supplied quote exactly as given. Do not write additional quotes.'
+      : '• No quotes. This is a quote-free format — never invent a spokesperson or customer statement.');
+  p('• Use the fixed blocks verbatim. Do not reword the boilerplate or the contacts table.');
+  p('• If a critical fact is missing or ambiguous, ask instead of guessing.');
+  p('');
+  p('=== PRODUCT MARKETING BRIEF ===');
+  p('Product / series:        ' + or(S.productName,'—'));
+  p('Category (eyebrow):      ' + or(S.category,'—'));
+  p('News type:               ' + (NEWS_LABEL[S.newsType]||'—') + '  — suggested lede verb: "' + verb + '"');
+  p('Release date:            ' + or(longDate(S.releaseDate),'—'));
+  p('');
+  p('USP (the single differentiator):');
+  p('  ' + or(S.usp,'—'));
+  p('Why it matters to the engineer:');
+  p('  ' + or(S.uspWhy,'—'));
+  p('Target markets and customers:');
+  p('  ' + or(S.targetMarkets,'—'));
+  if(String(S.customerValue||'').trim()){ p('Customer value beyond the USP:'); p('  ' + S.customerValue); }
+  if(String(S.keySpecs||'').trim()){ p('Specs to foreground:'); p('  ' + S.keySpecs); }
+  if(String(S.standards||'').trim()){ p('Standards and qualifications:  ' + S.standards); }
+  if(String(S.designTools||'').trim()){ p('TDK design tool for this part: ' + S.designTools); }
+  if(String(S.competitive||'').trim()){ p('Competitive positioning:'); p('  ' + S.competitive); }
+  if(bullets(S.applications)){ p(''); p('Main applications (as supplied):'); p(bullets(S.applications)); }
+  if(bullets(S.features)){ p(''); p('Main features and benefits (as supplied):'); p(bullets(S.features)); }
+  if(String(S.quote||'').trim()){ p(''); p('Approved quote (use verbatim):'); p('  ' + S.quote); }
+  p('');
+  p('=== FIXED BLOCKS — REPRODUCE VERBATIM ===');
+  p('');
+  p('About TDK Corporation');
+  p(boilerplate());
+  p('');
+  p('Download links');
+  p(downloadBlock());
+  p('');
+  p('Contacts for regional media');
+  p(contactsBlock());
+  p('');
+  p('=== DATASHEET — THE SOURCE OF EVERY NUMBER ===');
+  p('<<<DATASHEET');
+  p(String(S.datasheet||'').trim() || '[not supplied]');
+  p('DATASHEET>>>');
+  p('');
+  p('Deliver the finished release as plain text in the structural order above, ready to paste into Word.');
+  p('Then, separately from the release, list: every fact you could not source from the material above, every');
+  p('assumption you made, and everything that needs verification before publication.');
+  return out.join('\n');
+}
+
+function buildScaffold(){
+  var strict = S.lengthMode === 'strict';
+  var verb = VERBS[S.newsType] || 'introduces';
+  var o = [];
+  var p = function(s){ o.push(s); };
+
+  p(or(S.category,'[Category eyebrow]'));
+  p('');
+  p('[HEADLINE — to be written: TDK ' + verb + ' … ' +
+    (String(S.usp||'').trim() ? '(angle: ' + S.usp.replace(/\s+/g,' ').trim() + ')' : '') + ']');
+  p('');
+  p(or(longDate(S.releaseDate),'[Month DD, YYYY]'));
+  p('');
+  p('[PARAGRAPH 1 — lede. Opens: "TDK Corporation (TSE:6762) ' + verb + ' the ' +
+    or(S.productName,'[product]') + ', …" then the USP and why it matters in the application.]');
+  p('');
+  p('[PARAGRAPH 2 — key technical parameters and what they mean functionally.]');
+  p('');
+  p('[PARAGRAPH 3 — construction, package, qualification, temperature range, variants; closes on the');
+  p(' customer benefit.]');
+  if(String(S.designTools||'').trim()){
+    p('');
+    p('[PARAGRAPH 4 — design tool: ' + S.designTools + '.]');
+  }
+  if(String(S.quote||'').trim()){
+    p('');
+    p(S.quote);
+  }
+  if(!strict){
+    p('');
+    p('-----');
+    p('');
+    p('Main applications');
+    p(bullets(S.applications) || '- [to be supplied]');
+    p('');
+    p('Main features and benefits');
+    p(bullets(S.features) || '- [to be supplied]');
+    if(S.specsTable){
+      p('');
+      p('[SPECS / ORDERING-CODE TABLE — ordering code plus the key electrical parameters, units in the');
+      p(' column headers. Rows taken from the datasheet only.]');
+    }
+  } else {
+    p('');
+    p('[Strict-brief mode: applications and features stay inside the body prose — no bulleted sections.]');
+  }
+  p('');
+  p('-----');
+  p('');
+  p('About TDK Corporation');
+  p(boilerplate());
+  p('');
+  p('-----');
+  p('');
+  p(downloadBlock());
+  p('');
+  p('-----');
+  p('');
+  p('Contacts for regional media');
+  p(contactsBlock());
+  return o.join('\n');
+}
+
+var PREFLIGHT = [
+  ['Sourcing', [
+    ['Every figure in the draft appears in the datasheet','No rounding, no interpolation, no plausible-sounding gap filler.'],
+    ['Units match the datasheet character for character','"+70 °C", "1250 V DC", "AEC-Q200 Rev. E", "IEC 60938-2".'],
+    ['No quote unless a spokesperson approved it','The reference format carries no quotes at all.']
+  ]],
+  ['Language', [
+    ['American English spelling throughout','aluminum, color, optimize, catalog, analog, meter.'],
+    ['Dateline is spelled-out month, no city prefix','"August 19, 2026", not "MUNICH, Germany — ".'],
+    ['Every superlative is anchored to a number or a standard','Otherwise cut it.']
+  ]],
+  ['Fixed blocks', [
+    ['Sales and headcount figures still current','Boilerplate here says USD 16.6 billion, about 107,000 people, fiscal 2026.'],
+    ['Brand list correct for this product line','EPCOS included only for EPCOS-branded lines.'],
+    ['Media contacts still current','Names, locations, and phone numbers have changed between releases before.'],
+    ['Download URL replaced with the real one','The dated path is assigned by the web team on publication.']
+  ]]
+];
+
+function renderPreflight(){
+  var wrap = document.createElement('div');
+  wrap.className = 'preflight';
+  PREFLIGHT.forEach(function(g){
+    var sec = document.createElement('div');
+    sec.className = 'pf-group';
+    var h = document.createElement('h3'); h.textContent = g[0]; sec.appendChild(h);
+    g[1].forEach(function(item){
+      var d = document.createElement('div');
+      d.className = 'pf';
+      d.innerHTML = '<span class="box"></span><span><b></b> <span class="d"></span></span>';
+      d.querySelector('b').textContent = item[0];
+      d.querySelector('.d').textContent = item[1];
+      sec.appendChild(d);
+    });
+    wrap.appendChild(sec);
+  });
+  return wrap;
+}
+
+/* ---------------- panes ---------------- */
+var pane = 'brief';
+var CAPS = {
+  brief:'Paste into Claude to draft the release',
+  scaffold:'Fixed parts assembled; prose still to be written',
+  preflight:'Check before the draft leaves your desk'
+};
+
+function currentText(){
+  return pane === 'brief' ? buildBrief() : pane === 'scaffold' ? buildScaffold() : '';
+}
+
+function renderPanes(){
+  var host = $('panes');
+  host.innerHTML = '';
+  $('outcap').textContent = CAPS[pane];
+  $('copy').hidden = (pane === 'preflight');
+  $('download').hidden = (pane === 'preflight' || !downloadsReady);
+
+  if(pane === 'preflight'){ host.appendChild(renderPreflight()); return; }
+
+  if(!ready()){
+    var e = document.createElement('div');
+    e.className = 'empty';
+    var m = missing();
+    e.innerHTML = '<b>Waiting on ' + m.length + ' input' + (m.length===1?'':'s') + '</b>' +
+      '<span>' + m.map(function(r){ return r[1]; }).join(' · ') + '</span>';
+    host.appendChild(e);
+    $('copy').disabled = true; $('download').disabled = true;
+    return;
+  }
+  $('copy').disabled = false; $('download').disabled = false;
+  var pre = document.createElement('pre');
+  pre.className = 'out' + (pane === 'scaffold' ? ' doc' : '');
+  pre.textContent = currentText();
+  host.appendChild(pre);
+}
+
+Array.prototype.forEach.call(document.querySelectorAll('.tab'), function(t){
+  t.addEventListener('click', function(){
+    pane = t.getAttribute('data-pane');
+    Array.prototype.forEach.call(document.querySelectorAll('.tab'), function(x){
+      x.setAttribute('aria-selected', x === t ? 'true' : 'false');
+    });
+    renderPanes();
+  });
+});
+
+/* ---------------- copy / download ---------------- */
+function copyText(text){
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(function(){ toast('Copied'); }, fallback);
+  } else { fallback(); }
+  function fallback(){
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    var ok = false;
+    try{ ok = document.execCommand('copy'); }catch(e){}
+    document.body.removeChild(ta);
+    toast(ok ? 'Copied' : 'Copy failed — select the text and copy manually');
+  }
+}
+$('copy').addEventListener('click', function(){
+  if(!ready()) return;
+  copyText(currentText());
+});
+
+var downloadsReady = false;
+var downloadsApi = null;
+if(window.claude && typeof window.claude.use === 'function'){
+  window.claude.use('downloads').then(function(api){
+    if(!api) return;
+    downloadsApi = api; downloadsReady = true;
+    renderPanes();
+  }).catch(function(){});
+}
+$('download').addEventListener('click', function(){
+  if(!downloadsApi || !ready()) return;
+  var slug = (String(S.productName||'product').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') || 'product');
+  var name = (shortDate(S.releaseDate) || 'draft') + '_' + slug + '_' +
+    (pane === 'brief' ? 'briefing-packet' : 'scaffold') + '_EN.md';
+  downloadsApi.save({filename:name, data:currentText()}).then(function(){
+    toast('Saved');
+  }, function(err){
+    var code = err && err.code;
+    if(code === 'declined') return;
+    toast(code === 'too_large' ? 'File too large to save' : 'Save unavailable — use Copy instead');
+  });
+});
+
+/* ---------------- inputs ---------------- */
+function readInto(el){
+  var name = el.name || el.id;
+  if(!name) return;
+  if(el.type === 'checkbox'){ S[name] = el.checked; }
+  else { S[name] = el.value; }
+}
+function bind(){
+  Array.prototype.forEach.call(
+    document.querySelectorAll('input, textarea, select'), function(el){
+      if(el.type === 'file') return;
+      var name = el.name || el.id;
+      if(name && (name in S)){
+        if(el.type === 'checkbox'){ el.checked = !!S[name]; }
+        else if(el.type === 'radio'){ el.checked = (S[name] === el.value); }
+        else { el.value = S[name] || ''; }
+      }
+      el.addEventListener(el.tagName === 'SELECT' || el.type === 'checkbox' || el.type === 'radio' ? 'change' : 'input',
+        function(){
+          if(el.type === 'radio'){ S[el.name] = el.value; syncModes(); }
+          else readInto(el);
+          update();
+        });
+    });
+}
+function syncModes(){
+  Array.prototype.forEach.call(document.querySelectorAll('#modes .mode'), function(m){
+    var r = m.querySelector('input');
+    m.classList.toggle('on', r.checked);
+  });
+}
+function update(){
+  $('dscount').textContent = String(S.datasheet||'').length.toLocaleString('en-US') + ' characters';
+  renderGate(); renderFlags(); renderPanes(); persist();
+}
+
+/* datasheet file drop */
+var drop = $('drop'), file = $('file'), ds = $('datasheet');
+function loadFile(f){
+  if(!f) return;
+  if(/\.pdf$/i.test(f.name)){
+    toast('PDF text cannot be read here — open it and paste the text');
+    return;
+  }
+  var r = new FileReader();
+  r.onload = function(){
+    ds.value = String(r.result || '');
+    S.datasheet = ds.value;
+    update();
+    toast('Loaded ' + f.name);
+  };
+  r.onerror = function(){ toast('Could not read that file'); };
+  r.readAsText(f);
+}
+drop.addEventListener('click', function(){ file.click(); });
+drop.addEventListener('keydown', function(e){
+  if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); file.click(); }
+});
+file.addEventListener('change', function(){ loadFile(file.files && file.files[0]); file.value = ''; });
+['dragenter','dragover'].forEach(function(t){
+  drop.addEventListener(t, function(e){ e.preventDefault(); drop.classList.add('over'); });
+});
+['dragleave','drop'].forEach(function(t){
+  drop.addEventListener(t, function(e){ e.preventDefault(); drop.classList.remove('over'); });
+});
+drop.addEventListener('drop', function(e){
+  var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+  loadFile(f);
+});
+
+bind();
+syncModes();
+update();
+})();
+</script>
