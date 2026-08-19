@@ -1,0 +1,2 @@
+vendor/*.mjs linguist-vendored
+tdk-release-bench.html linguist-generated
