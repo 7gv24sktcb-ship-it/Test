@@ -1,7 +1,5 @@
-<title>TDK Release Bench</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<!--DOC_OPEN--><title>TDK Release Bench</title>
+<!--FONTS-->
 
 <style>
 :root{
@@ -265,7 +263,7 @@ footer{max-width:1360px; margin:0 auto; padding:6px 22px 40px; font-size:12.5px;
 .toast.on{opacity:1; transform:translateX(-50%) translateY(0)}
 @media (prefers-reduced-motion: reduce){ *{transition:none !important; animation:none !important} }
 </style>
-
+<!--BODY_OPEN-->
 <header class="top">
   <div class="headbar">
     <div class="brand">
@@ -285,7 +283,7 @@ footer{max-width:1360px; margin:0 auto; padding:6px 22px 40px; font-size:12.5px;
 
     <div class="note">
       <p><strong>What this bench does.</strong> Drop both source documents as PDF or Word. The bench reads the text out of them in your browser, assembles every fixed part of the release, and packages the whole thing as one briefing packet you paste into Claude to write the prose.</p>
-      <p>It does not write the release itself &mdash; a published page cannot call a language model, so the drafting step stays in Claude, where the <code>tdk-press-release</code> skill applies the same rules encoded here. Nothing you drop leaves this browser.</p>
+      <p>It does not write the release itself &mdash; the drafting step stays in Claude, where the <code>tdk-press-release</code> skill applies the same rules encoded here. Everything on this page runs offline in your browser: no upload, no network, no account.</p>
     </div>
 
     <section class="card">
@@ -403,7 +401,7 @@ footer{max-width:1360px; margin:0 auto; padding:6px 22px 40px; font-size:12.5px;
       <div class="outbar">
         <span class="cap" id="outcap">Paste into Claude to draft the release</span>
         <button class="ghost" id="copy">Copy</button>
-        <button class="ghost" id="download" hidden>Download</button>
+        <button class="ghost" id="download">Download</button>
       </div>
       <div id="panes" style="display:flex; flex-direction:column; flex:1; min-height:0"></div>
     </section>
@@ -1091,7 +1089,7 @@ function renderPanes(){
   host.innerHTML = '';
   $('outcap').textContent = CAPS[pane];
   $('copy').hidden = (pane === 'preflight');
-  $('download').hidden = (pane === 'preflight' || !downloadsReady);
+  $('download').hidden = (pane === 'preflight');
   if(pane === 'preflight'){ host.appendChild(renderPreflight()); return; }
   if(!ready()){
     var e = document.createElement('div');
@@ -1136,24 +1134,38 @@ function copyText(text){
 }
 $('copy').addEventListener('click', function(){ if(ready()) copyText(currentText()); });
 
-var downloadsReady = false, downloadsApi = null;
+var downloadsApi = null;
 if(window.claude && typeof window.claude.use === 'function'){
-  window.claude.use('downloads').then(function(api){
-    if(!api) return;
-    downloadsApi = api; downloadsReady = true; renderPanes();
-  }).catch(function(){});
+  window.claude.use('downloads').then(function(api){ downloadsApi = api || null; }).catch(function(){});
 }
-$('download').addEventListener('click', function(){
-  if(!downloadsApi || !ready()) return;
+function fileName(){
   var base = (String(S.productName || S.dsName || 'product').toLowerCase()
     .replace(/\.[a-z0-9]+$/,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')) || 'product';
-  var name = (shortDate(S.releaseDate) || 'draft') + '_' + base + '_' +
+  return (shortDate(S.releaseDate) || 'draft') + '_' + base + '_' +
     (pane === 'brief' ? 'briefing-packet' : 'scaffold') + '_EN.md';
-  downloadsApi.save({filename:name, data:currentText()}).then(function(){ toast('Saved'); }, function(err){
-    var code = err && err.code;
-    if(code === 'declined') return;
-    toast(code === 'too_large' ? 'File too large to save' : 'Save unavailable — use Copy instead');
-  });
+}
+function saveViaLink(name, text){
+  try{
+    var url = URL.createObjectURL(new Blob([text], {type:'text/markdown;charset=utf-8'}));
+    var a = document.createElement('a');
+    a.href = url; a.download = name; a.style.display = 'none';
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ URL.revokeObjectURL(url); a.remove(); }, 0);
+    toast('Saved ' + name);
+  }catch(e){ toast('Download failed — use Copy instead'); }
+}
+$('download').addEventListener('click', function(){
+  if(!ready()) return;
+  var name = fileName(), text = currentText();
+  if(downloadsApi){
+    downloadsApi.save({filename:name, data:text}).then(function(){ toast('Saved'); }, function(err){
+      var code = err && err.code;
+      if(code === 'declined') return;
+      toast(code === 'too_large' ? 'File too large to save' : 'Save unavailable — use Copy instead');
+    });
+    return;
+  }
+  saveViaLink(name, text);
 });
 
 /* ================= binding ================= */
@@ -1188,3 +1200,4 @@ syncModes();
 update();
 })();
 </script>
+<!--DOC_CLOSE-->
