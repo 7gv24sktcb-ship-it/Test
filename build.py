@@ -83,8 +83,18 @@ def pdfjs_block() -> str:
     )
 
 
+LOCAL_ONLY = re.compile(r"[ \t]*<!--LOCAL_ONLY-->.*?<!--/LOCAL_ONLY-->\n?", re.S)
+
+
 def render(target: str) -> str:
     html = (ROOT / "bench.template.html").read_text(encoding="utf-8")
+    # Drafting through the Claude API only exists in the local build: the
+    # Artifact CSP blocks requests to api.anthropic.com, so the card and its
+    # output tab would be dead controls there.
+    if target != "local":
+        html = LOCAL_ONLY.sub("", html)
+    else:
+        html = html.replace("<!--LOCAL_ONLY-->", "").replace("<!--/LOCAL_ONLY-->", "")
     if target == "local":
         fonts = "<style>\n" + (VENDOR / "fonts-embedded.css").read_text(encoding="utf-8") + "\n</style>"
         marks = {"DOC_OPEN": LOCAL_HEAD, "FONTS": fonts,

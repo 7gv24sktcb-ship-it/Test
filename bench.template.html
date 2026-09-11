@@ -253,6 +253,43 @@ pre.out.doc{font-family:var(--serif); font-size:14.5px; line-height:1.65}
 .pf .box{width:13px; height:13px; border:1px solid var(--line-strong); border-radius:3px; flex:none; margin-top:4px}
 .pf b{color:var(--ink); font-weight:600}
 
+.keyrow{display:flex; gap:8px; align-items:stretch}
+.keyrow input{flex:1; min-width:0; font-family:var(--mono); font-size:13px}
+.keyrow button{flex:none; white-space:nowrap}
+.genbar{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+button.primary{background:var(--accent); border-color:var(--accent); color:var(--accent-ink)}
+button.primary:hover:not([disabled]){filter:brightness(1.08); color:var(--accent-ink)}
+button.primary[disabled]:hover{border-color:var(--accent); color:var(--accent-ink)}
+.genmeta{font-family:var(--mono); font-size:11.5px; color:var(--ink-3); font-variant-numeric:tabular-nums}
+select{
+  font-family:var(--sans); font-size:14px; color:var(--ink);
+  background:var(--surface-2); border:1px solid var(--line-strong);
+  border-radius:5px; padding:9px 10px; width:100%; appearance:none; cursor:pointer;
+}
+select:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.status{
+  display:flex; align-items:center; gap:9px; flex-wrap:wrap;
+  padding:10px 16px; border-bottom:1px solid var(--line); background:var(--surface-2);
+  font-size:13px; color:var(--ink-2);
+}
+.status .pulse{
+  width:8px; height:8px; border-radius:99px; background:var(--accent); flex:none;
+  animation:pulse 1.3s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:.25}50%{opacity:1}}
+.status .think{
+  color:var(--ink-3); font-style:italic; overflow:hidden; text-overflow:ellipsis;
+  white-space:nowrap; min-width:0; flex:1;
+}
+.status button{margin-left:auto}
+.errbox{
+  margin:16px; padding:12px 14px; border:1px solid var(--crit);
+  border-left-width:3px; border-radius:0 4px 4px 0;
+  background:var(--surface-2); color:var(--ink-2); font-size:13.5px;
+  display:flex; flex-direction:column; gap:6px;
+}
+.errbox b{color:var(--ink); font-weight:600}
+.errbox code{font-family:var(--mono); font-size:12px; color:var(--copper); word-break:break-all}
 footer{max-width:1360px; margin:0 auto; padding:6px 22px 40px; font-size:12.5px; color:var(--ink-3); line-height:1.6}
 .toast{
   position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(8px);
@@ -381,6 +418,43 @@ footer{max-width:1360px; margin:0 auto; padding:6px 22px 40px; font-size:12.5px;
           <span><b>Include EPCOS in the brand list</b>The June 2026 boilerplate omits it. Check this for EPCOS-branded product lines.</span></label>
       </div>
     </section>
+    <!--LOCAL_ONLY-->
+    <section class="card">
+      <div class="ch"><span class="step">4</span><h2>Draft with Claude</h2><span class="hint">Optional &mdash; writes the release here</span></div>
+      <div class="body">
+        <p class="help" style="font-size:13px; color:var(--ink-3)">
+          With an Anthropic API key this page can send the briefing packet itself and stream the release
+          back. The key stays in this browser and goes to api.anthropic.com and nowhere else. Without a key,
+          copy the packet into Claude as before &mdash; the result is the same.
+        </p>
+
+        <div class="field">
+          <label for="apiKey">Anthropic API key</label>
+          <p class="help">From the Claude Console, under Account settings &rarr; API keys.</p>
+          <div class="keyrow">
+            <input type="password" id="apiKey" name="apiKey" placeholder="sk-ant-&hellip;" autocomplete="off" spellcheck="false">
+            <button type="button" class="ghost" id="keyToggle">Show</button>
+          </div>
+        </div>
+
+        <label class="check"><input type="checkbox" id="rememberKey" name="rememberKey">
+          <span><b>Remember the key on this computer</b>Stored in this browser&rsquo;s local storage. Leave it off on a shared machine &mdash; the key is then kept only until you close the tab.</span></label>
+
+        <div class="field">
+          <label for="model">Model</label>
+          <select id="model" name="model">
+            <option value="claude-opus-5">Claude Opus 5 &mdash; $5 / $25 per million tokens</option>
+            <option value="claude-sonnet-5">Claude Sonnet 5 &mdash; $2 / $10 per million tokens</option>
+          </select>
+        </div>
+
+        <div class="genbar">
+          <button type="button" class="primary" id="generate">Generate the release</button>
+          <span class="genmeta" id="genmeta">a draft costs a few cents</span>
+        </div>
+      </div>
+    </section>
+    <!--/LOCAL_ONLY-->
   </div>
 
   <div class="col-out">
@@ -395,6 +469,7 @@ footer{max-width:1360px; margin:0 auto; padding:6px 22px 40px; font-size:12.5px;
     <section class="card outwrap">
       <div class="tabs" role="tablist">
         <button class="tab" role="tab" aria-selected="true" data-pane="brief">Briefing packet</button>
+        <!--LOCAL_ONLY--><button class="tab" role="tab" aria-selected="false" data-pane="draft">Draft release</button><!--/LOCAL_ONLY-->
         <button class="tab" role="tab" aria-selected="false" data-pane="scaffold">Document scaffold</button>
         <button class="tab" role="tab" aria-selected="false" data-pane="preflight">Pre-flight</button>
       </div>
@@ -458,14 +533,22 @@ var S = {
   dsText:'', dsName:'', dsMeta:'',
   mfText:'', mfName:'', mfMeta:'',
   releaseDate:'', slug:'', productName:'', category:'',
-  notes:'', quote:'', lengthMode:'examples', specsTable:false, epcos:false
+  notes:'', quote:'', lengthMode:'examples', specsTable:false, epcos:false,
+  apiKey:'', rememberKey:false, model:'claude-opus-5', draft:''
 };
 var STORE = 'tdk-release-bench-v2';
 try{
   var saved = window.localStorage.getItem(STORE);
   if(saved){ var o = JSON.parse(saved); Object.keys(o).forEach(function(k){ if(k in S) S[k] = o[k]; }); }
 }catch(e){}
-function persist(){ try{ window.localStorage.setItem(STORE, JSON.stringify(S)); }catch(e){} }
+function persist(){
+  try{
+    var out = {};
+    Object.keys(S).forEach(function(k){ out[k] = S[k]; });
+    if(!S.rememberKey) out.apiKey = '';   // never write the key unless asked to
+    window.localStorage.setItem(STORE, JSON.stringify(out));
+  }catch(e){}
+}
 
 function $(id){ return document.getElementById(id); }
 function or(v, f){ var t = String(v||'').trim(); return t ? t : f; }
@@ -1079,10 +1162,16 @@ function renderPreflight(){
 var pane = 'brief';
 var CAPS = {
   brief:'Paste into Claude to draft the release',
+  draft:'Written by Claude from the packet — read it against the sources',
   scaffold:'Fixed parts assembled; prose still to be written',
   preflight:'Check before the draft leaves your desk'
 };
-function currentText(){ return pane === 'brief' ? buildBrief() : pane === 'scaffold' ? buildScaffold() : ''; }
+function currentText(){
+  if(pane === 'brief') return buildBrief();
+  if(pane === 'draft') return S.draft || '';
+  if(pane === 'scaffold') return buildScaffold();
+  return '';
+}
 
 function renderPanes(){
   var host = $('panes');
@@ -1091,6 +1180,48 @@ function renderPanes(){
   $('copy').hidden = (pane === 'preflight');
   $('download').hidden = (pane === 'preflight');
   if(pane === 'preflight'){ host.appendChild(renderPreflight()); return; }
+
+  if(pane === 'draft'){
+    var has = !!String(S.draft || '').trim();
+    $('copy').disabled = !has; $('download').disabled = !has;
+    if(gen.running){
+      var st = document.createElement('div');
+      st.className = 'status';
+      st.innerHTML = '<span class="pulse"></span><span class="lbl"></span><span class="think"></span>' +
+        '<button type="button" class="ghost small">Stop</button>';
+      st.querySelector('.lbl').textContent = gen.status || 'Working…';
+      st.querySelector('.think').textContent = gen.think ? gen.think.replace(/\s+/g, ' ').trim() : '';
+      st.querySelector('button').addEventListener('click', function(){
+        if(gen.ctrl) gen.ctrl.abort();
+      });
+      host.appendChild(st);
+    }
+    if(gen.error){
+      var eb = document.createElement('div');
+      eb.className = 'errbox';
+      eb.innerHTML = '<b></b><span></span>';
+      eb.querySelector('b').textContent = gen.error;
+      eb.querySelector('span').textContent = gen.errorDetail || '';
+      host.appendChild(eb);
+    }
+    if(has){
+      var dp = document.createElement('pre');
+      dp.className = 'out doc';
+      dp.textContent = S.draft;
+      host.appendChild(dp);
+      if(gen.running) dp.scrollTop = dp.scrollHeight;
+    } else if(!gen.running && !gen.error){
+      var de = document.createElement('div');
+      de.className = 'empty';
+      de.innerHTML = '<b>No draft yet</b><span></span>';
+      de.querySelector('span').textContent = ready()
+        ? 'Paste your API key in step 4 and press Generate. Or copy the briefing packet into Claude instead.'
+        : 'Both documents and a release date first.';
+      host.appendChild(de);
+    }
+    return;
+  }
+
   if(!ready()){
     var e = document.createElement('div');
     e.className = 'empty';
@@ -1108,12 +1239,15 @@ function renderPanes(){
   host.appendChild(pre);
 }
 
+function syncTabs(){
+  Array.prototype.forEach.call(document.querySelectorAll('.tab'), function(x){
+    x.setAttribute('aria-selected', x.getAttribute('data-pane') === pane ? 'true' : 'false');
+  });
+}
 Array.prototype.forEach.call(document.querySelectorAll('.tab'), function(t){
   t.addEventListener('click', function(){
     pane = t.getAttribute('data-pane');
-    Array.prototype.forEach.call(document.querySelectorAll('.tab'), function(x){
-      x.setAttribute('aria-selected', x === t ? 'true' : 'false');
-    });
+    syncTabs();
     renderPanes();
   });
 });
@@ -1141,8 +1275,8 @@ if(window.claude && typeof window.claude.use === 'function'){
 function fileName(){
   var base = (String(S.productName || S.dsName || 'product').toLowerCase()
     .replace(/\.[a-z0-9]+$/,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')) || 'product';
-  return (shortDate(S.releaseDate) || 'draft') + '_' + base + '_' +
-    (pane === 'brief' ? 'briefing-packet' : 'scaffold') + '_EN.md';
+  var kind = pane === 'brief' ? 'briefing-packet' : pane === 'draft' ? 'release_draft' : 'scaffold';
+  return (shortDate(S.releaseDate) || 'draft') + '_' + base + '_' + kind + '_EN.md';
 }
 function saveViaLink(name, text){
   try{
@@ -1168,15 +1302,178 @@ $('download').addEventListener('click', function(){
   saveViaLink(name, text);
 });
 
+/* ================= drafting through the Claude API ================= */
+var API_URL = 'https://api.anthropic.com/v1/messages';
+var API_VERSION = '2023-06-01';
+var PRICES = {                     /* USD per million tokens */
+  'claude-opus-5':   {in:5,  out:25},
+  'claude-sonnet-5': {in:2,  out:10}
+};
+var ONE_PASS_NOTE =
+  '\n\nOne more thing, specific to how this request reaches you: it is sent in a single pass from a ' +
+  'tool, so there is nobody to answer a follow-up question. Where the rules above tell you to ask, ' +
+  'write the release on the best-supported reading of the sources instead, mark the uncertain words ' +
+  'inline as [VERIFY: what needs checking], and explain each one in the closing list.';
+
+var gen = {running:false, ctrl:null, status:'', think:'', error:'', usage:null, stopReason:''};
+
+function canGenerate(){ return ready() && !!String(S.apiKey||'').trim() && !gen.running; }
+
+function renderGenBar(){
+  var b = $('generate'), m = $('genmeta');
+  if(!b) return;
+  b.disabled = !canGenerate();
+  b.textContent = gen.running ? 'Generating…' : (S.draft ? 'Generate again' : 'Generate the release');
+  if(gen.usage){
+    var pr = PRICES[S.model] || PRICES['claude-opus-5'];
+    var cost = (gen.usage.input / 1e6) * pr['in'] + (gen.usage.output / 1e6) * pr.out;
+    m.textContent = n(gen.usage.input) + ' in · ' + n(gen.usage.output) + ' out · about $' +
+      (cost < 0.01 ? cost.toFixed(3) : cost.toFixed(2));
+  } else if(!ready()){
+    m.textContent = 'both documents and a date first';
+  } else if(!String(S.apiKey||'').trim()){
+    m.textContent = 'paste an API key to enable';
+  } else {
+    m.textContent = 'a draft costs a few cents';
+  }
+}
+
+function httpMessage(status, body){
+  var detail = (body && body.error && body.error.message) ? body.error.message : '';
+  if(status === 401) return ['That API key was rejected.', 'Check it in the Claude Console under Account settings → API keys, and make sure you pasted the whole key.'];
+  if(status === 403) return ['That key is not allowed to use this model.', detail || 'Check the workspace and permissions on the key.'];
+  if(status === 404) return ['The model is not available to this key.', detail || 'Pick the other model, or check what your organization has enabled.'];
+  if(status === 413) return ['The request is too large.', 'The two documents together exceed what one request can carry. Trim the extracted text — a datasheet often has pages the release does not need.'];
+  if(status === 429) return ['Rate limited.', detail || 'Your organization is at its requests-per-minute or tokens-per-minute limit. Wait a moment and generate again.'];
+  if(status === 529 || status >= 500) return ['The API is overloaded right now.', 'This is on Anthropic\'s side, not yours. Try again in a moment.'];
+  if(status === 400) return ['The API rejected the request.', detail || 'Nothing to act on was returned.'];
+  return ['The API returned HTTP ' + status + '.', detail];
+}
+
+function setStatus(text){ gen.status = text; if(pane === 'draft') renderPanes(); }
+
+async function generate(){
+  if(!canGenerate()) return;
+  var key = String(S.apiKey||'').trim();
+  gen.running = true; gen.error = ''; gen.think = ''; gen.usage = null; gen.stopReason = '';
+  S.draft = '';
+  gen.status = 'Connecting to the API…';
+  pane = 'draft'; syncTabs(); renderPanes(); renderGenBar();
+
+  var ctrl = new AbortController();
+  gen.ctrl = ctrl;
+
+  var headers = {
+    'content-type': 'application/json',
+    'x-api-key': key,
+    'anthropic-version': API_VERSION,
+    'anthropic-dangerous-direct-browser-access': 'true'
+  };
+  var body = {
+    model: S.model,
+    max_tokens: 16000,
+    stream: true,
+    thinking: {type:'adaptive', display:'summarized'},
+    output_config: {effort:'high'},
+    messages: [{role:'user', content: buildBrief() + ONE_PASS_NOTE}]
+  };
+  /* Server-side refusal fallback: on a policy decline the request is re-run on
+     Anthropic's recommended substitute instead of returning the refusal. */
+  if(S.model === 'claude-opus-5'){
+    headers['anthropic-beta'] = 'server-side-fallback-2026-07-01';
+    body.fallbacks = 'default';
+  }
+
+  try{
+    var res = await fetch(API_URL, {
+      method:'POST', headers:headers, body:JSON.stringify(body), signal:ctrl.signal
+    });
+    if(!res.ok){
+      var payload = null;
+      try{ payload = JSON.parse(await res.text()); }catch(e){}
+      var msg = httpMessage(res.status, payload);
+      gen.error = msg[0]; gen.errorDetail = msg[1];
+      return;
+    }
+    setStatus('Claude is reading the documents…');
+    await readStream(res.body);
+    if(gen.stopReason === 'refusal'){
+      gen.error = 'Claude declined to complete this request.';
+      gen.errorDetail = 'The safety classifiers stopped the draft. Nothing in a datasheet should normally trigger this — check the extracted text for anything unexpected, then try again.';
+      S.draft = '';
+    } else if(!S.draft.trim()){
+      gen.error = 'The API returned an empty response.';
+      gen.errorDetail = 'Nothing was written. Try generating again.';
+    }
+  }catch(err){
+    if(err && err.name === 'AbortError'){
+      gen.status = '';
+      if(!S.draft.trim()) gen.error = '';
+    } else {
+      gen.error = 'Could not reach api.anthropic.com.';
+      gen.errorDetail = 'Check that this machine is online and that no proxy or firewall is blocking the request. ' +
+        (err && err.message ? '(' + err.message + ')' : '');
+    }
+  }finally{
+    gen.running = false; gen.ctrl = null; gen.status = '';
+    renderGenBar(); renderPanes(); persist();
+  }
+}
+
+async function readStream(stream){
+  var reader = stream.getReader();
+  var decoder = new TextDecoder('utf-8');
+  var buffer = '', wroteText = false;
+  for(;;){
+    var chunk = await reader.read();
+    if(chunk.done) break;
+    buffer += decoder.decode(chunk.value, {stream:true});
+    var lines = buffer.split('\n');
+    buffer = lines.pop();
+    for(var i = 0; i < lines.length; i++){
+      var line = lines[i];
+      if(line.slice(0, 6) !== 'data: ') continue;
+      var ev;
+      try{ ev = JSON.parse(line.slice(6)); }catch(e){ continue; }
+      if(ev.type === 'error'){
+        gen.error = 'The API stopped mid-response.';
+        gen.errorDetail = (ev.error && ev.error.message) ? ev.error.message : '';
+        try{ reader.cancel(); }catch(e){}
+        return;
+      }
+      if(ev.type === 'message_start' && ev.message && ev.message.usage){
+        gen.usage = {input: ev.message.usage.input_tokens || 0, output: 0};
+      }
+      if(ev.type === 'content_block_delta' && ev.delta){
+        if(ev.delta.type === 'text_delta'){
+          if(!wroteText){ wroteText = true; gen.status = 'Writing the release…'; gen.think = ''; }
+          S.draft += ev.delta.text;
+          if(pane === 'draft') renderPanes();
+        } else if(ev.delta.type === 'thinking_delta'){
+          gen.think = (gen.think + (ev.delta.thinking || '')).slice(-400);
+          if(!wroteText){
+            gen.status = 'Claude is thinking…';
+            if(pane === 'draft') renderPanes();
+          }
+        }
+      }
+      if(ev.type === 'message_delta'){
+        if(ev.delta && ev.delta.stop_reason) gen.stopReason = ev.delta.stop_reason;
+        if(ev.usage && gen.usage) gen.usage.output = ev.usage.output_tokens || gen.usage.output;
+      }
+    }
+  }
+}
+
 /* ================= binding ================= */
 function bind(){
-  Array.prototype.forEach.call(document.querySelectorAll('#releaseDate,#slug,#productName,#category,#notes,#quote,#specsTable,#epcos,input[name=lengthMode]'),
+  Array.prototype.forEach.call(document.querySelectorAll('#releaseDate,#slug,#productName,#category,#notes,#quote,#specsTable,#epcos,#apiKey,#rememberKey,#model,input[name=lengthMode]'),
     function(el){
       var name = el.name || el.id;
       if(el.type === 'checkbox') el.checked = !!S[name];
       else if(el.type === 'radio') el.checked = (S[name] === el.value);
       else el.value = S[name] || '';
-      var evt = (el.type === 'checkbox' || el.type === 'radio') ? 'change' : 'input';
+      var evt = (el.type === 'checkbox' || el.type === 'radio' || el.tagName === 'SELECT') ? 'change' : 'input';
       el.addEventListener(evt, function(){
         if(el.type === 'checkbox') S[name] = el.checked;
         else if(el.type === 'radio'){ S[name] = el.value; syncModes(); }
@@ -1192,7 +1489,17 @@ function syncModes(){
 }
 function update(opts){
   if(!opts || !opts.skipSlots) SLOTS.forEach(renderSlot);
-  renderGate(); renderFlags(); renderPanes(); persist();
+  renderGate(); renderFlags(); renderPanes(); renderGenBar(); persist();
+}
+
+if($('generate')){
+  $('keyToggle').addEventListener('click', function(){
+    var f = $('apiKey');
+    var showing = f.type === 'text';
+    f.type = showing ? 'password' : 'text';
+    this.textContent = showing ? 'Show' : 'Hide';
+  });
+  $('generate').addEventListener('click', generate);
 }
 
 bind();
