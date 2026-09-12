@@ -307,12 +307,12 @@ footer{max-width:1360px; margin:0 auto; padding:6px 22px 40px; font-size:12.5px;
   <div class="headbar">
     <div class="brand">
       <h1>TDK Release Bench</h1>
-      <div class="sub">Drop the datasheet and the marketing form &rarr; briefing packet and document scaffold</div>
+      <div class="sub">Drop the datasheet and the marketing form &rarr; headline and body text</div>
     </div>
     <div class="langchip">American English in &amp; out</div>
     <div class="meter">
       <div class="track"><div class="fill" id="fill"></div></div>
-      <div class="num" id="ready">0 / 3 required</div>
+      <div class="num" id="ready">0 / 2 required</div>
     </div>
   </div>
 </header>
@@ -321,7 +321,7 @@ footer{max-width:1360px; margin:0 auto; padding:6px 22px 40px; font-size:12.5px;
   <div class="col-in">
 
     <div class="note">
-      <p><strong>What this bench does.</strong> Drop both source documents as PDF or Word. The bench reads the text out of them in your browser, assembles every fixed part of the release, and packages the whole thing as one briefing packet you paste into Claude to write the prose.</p>
+      <p><strong>What this bench does.</strong> Drop both source documents as PDF or Word. The bench reads the text out of them in your browser and packages everything as one briefing packet that produces the headline and the body text &mdash; the parts that have to be written. Boilerplate, contacts and the dateline are added later in your own template.</p>
       <p>It does not write the release itself &mdash; the drafting step stays in Claude, where the <code>tdk-press-release</code> skill applies the same rules encoded here. Everything on this page runs offline in your browser: no upload, no network, no account.</p>
     </div>
 
@@ -340,27 +340,8 @@ footer{max-width:1360px; margin:0 auto; padding:6px 22px 40px; font-size:12.5px;
     </section>
 
     <section class="card">
-      <div class="ch"><span class="step">3</span><h2>Release settings</h2><span class="hint">What the documents cannot tell you</span></div>
+      <div class="ch"><span class="step">3</span><h2>Draft settings</h2><span class="hint">What the documents cannot tell you</span></div>
       <div class="body">
-        <div class="row two">
-          <div class="field">
-            <label for="releaseDate"><span class="req">&bull;</span> Release date</label>
-            <p class="help">Sets the dateline and the dated download path.</p>
-            <input type="date" id="releaseDate" name="releaseDate">
-          </div>
-          <div class="field">
-            <label for="slug">Product category slug</label>
-            <p class="help">Path segment on tdk-electronics.tdk.com.</p>
-            <input type="text" id="slug" name="slug" list="slugs" placeholder="e.g. emi_capacitors">
-            <datalist id="slugs">
-              <option value="power_chokes"></option><option value="dc_cyl"></option>
-              <option value="emi_capacitors"></option><option value="alu_snap"></option>
-              <option value="hvc_presentation"></option><option value="ntc_icl"></option>
-              <option value="transformers_igbt_fet"></option>
-            </datalist>
-          </div>
-        </div>
-
         <div class="row two">
           <div class="field">
             <label for="productName">Product or series name</label>
@@ -407,17 +388,8 @@ footer{max-width:1360px; margin:0 auto; padding:6px 22px 40px; font-size:12.5px;
           <textarea id="notes" name="notes" placeholder="e.g. Lead on the 105 &deg;C rating, not the capacitance. Mention the CapThermal design tool."></textarea>
         </div>
 
-        <div class="field">
-          <label for="quote">Approved quote</label>
-          <p class="help">Leave empty for the standard quote-free format. Paste only a quote a real spokesperson has approved &mdash; nothing here gets invented.</p>
-          <textarea id="quote" name="quote" placeholder="&ldquo;&hellip;&rdquo; &mdash; Name, Title, TDK Electronics"></textarea>
-        </div>
-
         <label class="check"><input type="checkbox" id="specsTable" name="specsTable">
           <span><b>Include a specs / ordering-code table</b>Omitted by default. Rows come from the datasheet only &mdash; never interpolated.</span></label>
-
-        <label class="check"><input type="checkbox" id="epcos" name="epcos">
-          <span><b>Include EPCOS in the brand list</b>The June 2026 boilerplate omits it. Check this for EPCOS-branded product lines.</span></label>
       </div>
     </section>
   </div>
@@ -434,7 +406,6 @@ footer{max-width:1360px; margin:0 auto; padding:6px 22px 40px; font-size:12.5px;
     <section class="card outwrap">
       <div class="tabs" role="tablist">
         <button class="tab" role="tab" aria-selected="true" data-pane="brief">Briefing packet</button>
-        <button class="tab" role="tab" aria-selected="false" data-pane="scaffold">Document scaffold</button>
         <button class="tab" role="tab" aria-selected="false" data-pane="preflight">Pre-flight</button>
       </div>
       <div class="outbar">
@@ -448,9 +419,9 @@ footer{max-width:1360px; margin:0 auto; padding:6px 22px 40px; font-size:12.5px;
 </main>
 
 <footer>
-  Fixed blocks reproduce the June 2026 boilerplate and media contacts. Sales and headcount figures, contact
-  names, and phone numbers drift between releases &mdash; verify them against the latest approved release before
-  anything goes out. Extracted text and settings stay in this browser and are not uploaded anywhere.
+  The bench writes the headline and the body text only. Boilerplate, media contacts, the dateline and the
+  download links belong to your release template and are added there, where they can be checked against the
+  latest approved release. Extracted text and settings stay in this browser and are not uploaded anywhere.
 </footer>
 
 <div class="toast" id="toast"></div>
@@ -505,21 +476,7 @@ footer{max-width:1360px; margin:0 auto; padding:6px 22px 40px; font-size:12.5px;
 (function(){
 "use strict";
 
-/* ================= fixed blocks ================= */
-var BOILER_BASE = 'TDK Corporation (TSE:6762) is a global technology company and innovation leader in the electronics industry, based in Tokyo, Japan. With the tagline "In Everything, Better" TDK aims to realize a better future across all aspects of life, industry, and society. For over 90 years, TDK has shaped the world from within; from the pioneering ferrite cores to cassette tapes that defined an era, to powering the digital age with advanced components, sensors, and batteries, leading the way towards a more sustainable future. United by TDK Venture Spirit, a start-up mentality built on visions, courage and mutual trust, TDK’s passionate team members around the globe pursue better—for ourselves, customers, partners, and the world. Today, the state-of-the-art technologies of TDK are in everything, from industrial applications, energy systems, electric vehicles, to smartphones and gaming, at the core of modern life. TDK’s comprehensive, innovative-driven portfolio includes cutting-edge passive components, sensors and sensor systems, power supplies, lithium-ion and solid-state batteries, magnetic heads, AI and enterprise software solutions, and more—featuring numerous market-leading products. These are marketed under the product brands {BRANDS}. Positioning the AI ecosystem as a key strategic area, TDK leverages its global network across the automotive, information and communication technology, and industrial equipment sectors to expand its business in a wide range of fields. In fiscal 2026, TDK posted total sales of USD 16.6 billion and employed about 107,000 people worldwide.';
-
-var BRANDS_NO_EPCOS = 'TDK, InvenSense, Micronas, Tronics, TDK-Lambda, TDK SensEI, and ATL';
-var BRANDS_EPCOS = 'TDK, EPCOS, InvenSense, Micronas, Tronics, TDK-Lambda, TDK SensEI, and ATL';
-
-var CONTACTS = [
-  ['Europe','Mr. R. HIGGELKE','TDK Electronics AG, München, Deutschland','+49 89 54020 1378','ralf.higgelke@tdk.com'],
-  ['North America','Ms. D. MARTIN','TDK Electronics Inc., Woodbridge, NJ, USA','+1 732 906 4364','debbie.martin@tdk.com'],
-  ['South America',"Mr. C. DALL'AGNOL",'TDK Electronics do Brasil Ltda., Gravataí, Brazil','+55 51 3484 7158','candido.dallagnol@tdk.com'],
-  ['India','Mr. H. BAGHEL','TDK India Private Limited, Noida, India','+91 12 04 50 58 42','himalaya.baghel@tdk.com'],
-  ['Greater China','Ms. K. Xu','TDK (Shanghai) Electronics Ltd., Shanghai, China','+86 21 2219 1598','Kathy.Xu@tdk.com'],
-  ['Japan','Mr. D. ITO','TDK Corporation, Tokyo, Japan','+813 6778 1055','TDK.PR@tdk.com']
-];
-
+/* ================= style checks ================= */
 var BRITISH = [
   ['aluminium','aluminum'],['colour','color'],['behaviour','behavior'],['favour','favor'],
   ['honour','honor'],['labour','labor'],['centre','center'],['metre','meter'],['litre','liter'],
@@ -540,11 +497,11 @@ var HYPE = ['revolutionary','groundbreaking','ground-breaking','game-changing','
 var S = {
   dsText:'', dsName:'', dsMeta:'',
   mfText:'', mfName:'', mfMeta:'',
-  releaseDate:'', slug:'', productName:'', category:'',
-  notes:'', quote:'', lengthMode:'examples', specsTable:false, epcos:false,
-  apiKey:'', rememberKey:false, model:'claude-opus-5', draft:''
+  productName:'', category:'',
+  notes:'', lengthMode:'examples', specsTable:false,
+  apiKey:'', rememberKey:false, model:'claude-sonnet-5', draft:''
 };
-var STORE = 'tdk-release-bench-v2';
+var STORE = 'tdk-release-bench-v3';
 try{
   var saved = window.localStorage.getItem(STORE);
   if(saved){ var o = JSON.parse(saved); Object.keys(o).forEach(function(k){ if(k in S) S[k] = o[k]; }); }
@@ -560,18 +517,6 @@ function persist(){
 
 function $(id){ return document.getElementById(id); }
 function or(v, f){ var t = String(v||'').trim(); return t ? t : f; }
-var MONTHS = ['January','February','March','April','May','June','July','August',
-  'September','October','November','December'];
-function longDate(iso){
-  if(!/^\d{4}-\d{2}-\d{2}$/.test(iso||'')) return '';
-  var p = iso.split('-');
-  return MONTHS[parseInt(p[1],10)-1] + ' ' + parseInt(p[2],10) + ', ' + p[0];
-}
-function shortDate(iso){
-  if(!/^\d{4}-\d{2}-\d{2}$/.test(iso||'')) return '';
-  var p = iso.split('-');
-  return p[0].slice(2) + p[1] + p[2];
-}
 function n(x){ return Number(x).toLocaleString('en-US'); }
 var toastTimer = null;
 function toast(msg){
@@ -879,8 +824,7 @@ async function ingest(cfg, file, drop){
 /* ================= readiness ================= */
 var REQUIRED = [
   ['dsText','Datasheet'],
-  ['mfText','Product marketing form'],
-  ['releaseDate','Release date']
+  ['mfText','Product marketing form']
 ];
 function missing(){ return REQUIRED.filter(function(r){ return !String(S[r[0]]||'').trim(); }); }
 function ready(){ return missing().length === 0; }
@@ -926,12 +870,6 @@ function renderFlags(){
       '. None of the reference releases use these. Each one needs the number or standard behind it, or it goes.';
     box.appendChild(h);
   }
-  if(String(S.quote||'').trim()){
-    var q = document.createElement('div');
-    q.className = 'flag';
-    q.innerHTML = '<span><b>Quote supplied.</b> The reference format is quote-free. Confirm the named spokesperson approved this wording before publication.</span>';
-    box.appendChild(q);
-  }
   if(!box.children.length){
     var c = document.createElement('div');
     c.className = 'clean';
@@ -941,22 +879,13 @@ function renderFlags(){
 }
 
 /* ================= output ================= */
-function boilerplate(){ return BOILER_BASE.replace('{BRANDS}', S.epcos ? BRANDS_EPCOS : BRANDS_NO_EPCOS); }
-function contactsBlock(){ return CONTACTS.map(function(c){ return c.join('  |  '); }).join('\n'); }
-function downloadBlock(){
-  var slug = or(S.slug, '[slug — confirm with product marketing]');
-  var d = shortDate(S.releaseDate) || '[YYMMDD]';
-  return 'You can download this text and associated images from www.tdk-electronics.tdk.com/en/' + d +
-    '  [URL TBD — assigned by the web team on publication]\n' +
-    'Further information on the products can be found at www.tdk-electronics.tdk.com/en/' + slug;
-}
-
 function buildBrief(){
   var strict = S.lengthMode === 'strict';
-  var out = [], p = function(s){ out.push(s); };
+  var out = [], p = function(x){ out.push(x); };
 
   p('You are an experienced technology and product communications manager at TDK Electronics.');
-  p('Write a product press release in American English from the two source documents below.');
+  p('Write the headline and the body text of a product press release in American English, from the two');
+  p('source documents below.');
   p('');
   p('=== SOURCES ===');
   p('Two documents follow, each in its own delimited block:');
@@ -967,13 +896,12 @@ function buildBrief(){
   p('tab-separated lines and columns may be interleaved. Read carefully, and if a figure is garbled or');
   p('ambiguous, ask rather than guess.');
   p('');
-  p('=== STRUCTURE (in order) ===');
+  p('=== WHAT TO WRITE (in order) ===');
   p('1. Category eyebrow — plain text, the product category, sitting above the headline.');
   p('2. Headline — "TDK [verb] [what] [for / with what benefit]". Factual and newsy; state the news angle');
   p('   and usually the benefit or target application in the same sentence. Two lines is fine. No teaser,');
   p('   no cliffhanger, no suspense.');
-  p('3. Dateline — spelled-out month, no city prefix: "' + (longDate(S.releaseDate) || '[Month DD, YYYY]') + '".');
-  p('4. Body — ' + (strict ? '2–3' : '2–4') + ' paragraphs, no subheads:');
+  p('3. Body — ' + (strict ? '2–3' : '2–4') + ' paragraphs, no subheads:');
   p('   • Lede: open literally with "TDK Corporation (TSE:6762) [announces / presents / introduces /');
   p('     extends / adds / enables] the ' + or(S.productName, '[product or series name]') + '", give the one-line category and');
   p('     positioning, then the headline spec and the target application in the same paragraph. Pick the');
@@ -987,29 +915,33 @@ function buildBrief(){
   p('     benefit.');
   p('   • Design tools: only if the sources mention a TDK tool, calculator, or SPICE model for this part.');
   if(strict){
-    p('5. Fixed blocks: About TDK Corporation, download links, media contacts — verbatim from below.');
+    p('4. Nothing else. Applications and features fold into the body prose — see LENGTH AND LISTS below.');
   } else {
-    p('5. Divider "-----", then "Main applications" as a bullet list — short noun phrases, no periods.');
-    p('6. "Main features and benefits" as a bullet list — short phrases, no periods; a mix of plain specs');
+    p('4. "Main applications" as a bullet list — short noun phrases, no periods.');
+    p('5. "Main features and benefits" as a bullet list — short phrases, no periods; a mix of plain specs');
     p('   and named standards compliance.');
     if(S.specsTable){
-      p('7. A specs / ordering-code table — ordering code plus the 2–4 key electrical parameters, units in');
+      p('6. A specs / ordering-code table — ordering code plus the 2–4 key electrical parameters, units in');
       p('   the column headers. Take every row from the datasheet; never interpolate a missing one.');
-    } else {
-      p('7. No specs table — omitted by standing convention.');
     }
-    p('8. Divider, then the fixed blocks below verbatim: About TDK Corporation, download links, media');
-    p('   contacts.');
   }
+  p('');
+  p('=== WHAT NOT TO WRITE ===');
+  p('Stop after the last section above. Do not write a dateline, an "About TDK Corporation" paragraph,');
+  p('media contacts, download links, or any other standing block — those live in TDK’s release template');
+  p('and are added there, against the latest approved versions. The release date is not fixed at drafting');
+  p('time, so no date belongs anywhere in the text.');
+  p('No quotes: TDK product releases never carry a spokesperson or customer statement. Never invent one,');
+  p('and do not leave a placeholder for one.');
   p('');
   p('=== LENGTH AND LISTS ===');
   if(strict){
-    p('250 words maximum for the whole release, continuous prose throughout. No bullet lists anywhere —');
+    p('250 words maximum for headline and body together, continuous prose throughout. No bullet lists —');
     p('fold applications and features into the body paragraphs. Do not pad to reach the count.');
   } else {
-    p('250–400 words of body prose, not counting bullets, tables, or boilerplate. Keep the two bulleted');
-    p('sections. Let the source material set the natural length inside that range — do not pad to hit a');
-    p('count, and do not cut a material spec to shorten it.');
+    p('250–400 words of body prose, not counting the headline, the bullets, or a table. Keep the two');
+    p('bulleted sections. Let the source material set the natural length inside that range — do not pad to');
+    p('hit a count, and do not cut a material spec to shorten it.');
   }
   p('');
   p('=== VOICE ===');
@@ -1021,39 +953,20 @@ function buildBrief(){
   p('never in the headline or lede. Solution-oriented, formal, confident, never hyped.');
   p('');
   p('=== HARD RULES ===');
-  p('• American English throughout: spelling (aluminum, color, optimize, catalog, analog, meter) and');
-  p('  month-day-year dates.');
+  p('• American English throughout: spelling (aluminum, color, optimize, catalog, analog, meter).');
   p('• Never invent a spec, a certification, a figure, or a URL. Every number traces to the datasheet.');
   p('  Do not round, estimate, or fill a gap with a plausible figure.');
   p('• Reproduce units and standards exactly as the datasheet writes them: "+70 °C", "1250 V DC",');
   p('  "AEC-Q200 Rev. E", "IEC 60938-2". Do not normalize or "fix" them.');
   p('• No superlative without a number or a standard behind it. "Groundbreaking" and "revolutionary" never');
   p('  appear in a TDK release.');
-  p(String(S.quote||'').trim()
-      ? '• Use the supplied quote exactly as given. Do not write additional quotes.'
-      : '• No quotes. This is a quote-free format — never invent a spokesperson or customer statement.');
-  p('• Use the fixed blocks verbatim. Do not reword the boilerplate or the contacts table.');
   p('• If a critical fact is missing or ambiguous, ask instead of guessing.');
   p('');
-  p('=== RELEASE SETTINGS ===');
-  p('Release date:            ' + or(longDate(S.releaseDate), '—'));
+  p('=== DRAFT SETTINGS ===');
   p('Product / series name:   ' + or(S.productName, 'take it from the documents'));
   p('Category (eyebrow):      ' + or(S.category, 'take it from the documents'));
   p('Specs table:             ' + (S.specsTable ? 'include' : 'omit'));
-  p('Brand list:              ' + (S.epcos ? 'includes EPCOS' : 'no EPCOS'));
   if(String(S.notes||'').trim()){ p(''); p('Notes from the communications manager:'); p('  ' + S.notes); }
-  if(String(S.quote||'').trim()){ p(''); p('Approved quote (use verbatim):'); p('  ' + S.quote); }
-  p('');
-  p('=== FIXED BLOCKS — REPRODUCE VERBATIM ===');
-  p('');
-  p('About TDK Corporation');
-  p(boilerplate());
-  p('');
-  p('Download links');
-  p(downloadBlock());
-  p('');
-  p('Contacts for regional media');
-  p(contactsBlock());
   p('');
   p('=== DOCUMENT 1: DATASHEET' + (S.dsName ? ' (' + S.dsName + ')' : '') + ' ===');
   p('<<<DATASHEET');
@@ -1065,64 +978,10 @@ function buildBrief(){
   p(String(S.mfText||'').trim() || '[not supplied]');
   p('MARKETING_FORM>>>');
   p('');
-  p('Deliver the finished release as plain text in the structural order above, ready to paste into Word.');
-  p('Then, separately from the release, list: every fact you could not source from the documents, every');
-  p('assumption you made, and everything that needs verification before publication.');
+  p('Deliver the headline and body text as plain text in the order above, ready to paste into TDK’s');
+  p('release template. Then, separately from the release text, list: every fact you could not source from');
+  p('the documents, every assumption you made, and everything that needs verification before publication.');
   return out.join('\n');
-}
-
-function buildScaffold(){
-  var strict = S.lengthMode === 'strict';
-  var o = [], p = function(s){ o.push(s); };
-  p(or(S.category, '[Category eyebrow — from the marketing form]'));
-  p('');
-  p('[HEADLINE — TDK [verb] … , from the USP in the marketing form]');
-  p('');
-  p(or(longDate(S.releaseDate), '[Month DD, YYYY]'));
-  p('');
-  p('[PARAGRAPH 1 — lede. Opens: "TDK Corporation (TSE:6762) [verb] the ' +
-    or(S.productName, '[product]') + ', …" then the USP and why it matters in the application.]');
-  p('');
-  p('[PARAGRAPH 2 — key technical parameters from the datasheet and what they mean functionally.]');
-  p('');
-  p('[PARAGRAPH 3 — construction, package, qualification, temperature range, variants; closes on the');
-  p(' customer benefit.]');
-  p('');
-  p('[PARAGRAPH 4 — optional: TDK design tool, calculator, or SPICE model, if the sources name one.]');
-  if(String(S.quote||'').trim()){ p(''); p(S.quote); }
-  if(!strict){
-    p('');
-    p('-----');
-    p('');
-    p('Main applications');
-    p('- [from the target markets in the marketing form]');
-    p('');
-    p('Main features and benefits');
-    p('- [from the datasheet specs and the customer value in the marketing form]');
-    if(S.specsTable){
-      p('');
-      p('[SPECS / ORDERING-CODE TABLE — ordering code plus the key electrical parameters, units in the');
-      p(' column headers. Rows taken from the datasheet only.]');
-    }
-  } else {
-    p('');
-    p('[Strict-brief mode: applications and features stay inside the body prose — no bulleted sections.]');
-  }
-  p('');
-  p('-----');
-  p('');
-  p('About TDK Corporation');
-  p(boilerplate());
-  p('');
-  p('-----');
-  p('');
-  p(downloadBlock());
-  p('');
-  p('-----');
-  p('');
-  p('Contacts for regional media');
-  p(contactsBlock());
-  return o.join('\n');
 }
 
 var PREFLIGHT = [
@@ -1133,18 +992,16 @@ var PREFLIGHT = [
   ['Sourcing', [
     ['Every figure in the draft appears in the datasheet','No rounding, no interpolation, no plausible-sounding gap filler.'],
     ['Units match the datasheet character for character','"+70 °C", "1250 V DC", "AEC-Q200 Rev. E", "IEC 60938-2".'],
-    ['No quote unless a spokesperson approved it','The reference format carries no quotes at all.']
+    ['Every [VERIFY: …] mark is resolved','Generated drafts flag what they could not source. None may survive into the release.']
   ]],
   ['Language', [
     ['American English spelling throughout','aluminum, color, optimize, catalog, analog, meter.'],
-    ['Dateline is spelled-out month, no city prefix','"August 19, 2026", not "MUNICH, Germany — ".'],
-    ['Every superlative is anchored to a number or a standard','Otherwise cut it.']
+    ['Every superlative is anchored to a number or a standard','Otherwise cut it.'],
+    ['No quotes anywhere','TDK product releases never carry a spokesperson or customer statement.']
   ]],
-  ['Fixed blocks', [
-    ['Sales and headcount figures still current','Boilerplate here says USD 16.6 billion, about 107,000 people, fiscal 2026.'],
-    ['Brand list correct for this product line','EPCOS included only for EPCOS-branded lines.'],
-    ['Media contacts still current','Names, locations, and phone numbers have changed between releases before.'],
-    ['Download URL replaced with the real one','The dated path is assigned by the web team on publication.']
+  ['Handover', [
+    ['No dateline, boilerplate, contacts or links in the text','Those belong to the release template, not to this draft.'],
+    ['The standing blocks in the template are current','Sales and headcount figures, contact names and phone numbers drift between releases — check them where they live.']
   ]]
 ];
 function renderPreflight(){
@@ -1171,13 +1028,11 @@ var pane = 'brief';
 var CAPS = {
   brief:'Paste into Claude to draft the release',
   draft:'Written by Claude from the packet — read it against the sources',
-  scaffold:'Fixed parts assembled; prose still to be written',
   preflight:'Check before the draft leaves your desk'
 };
 function currentText(){
   if(pane === 'brief') return buildBrief();
   if(pane === 'draft') return S.draft || '';
-  if(pane === 'scaffold') return buildScaffold();
   return '';
 }
 
@@ -1224,7 +1079,7 @@ function renderPanes(){
       de.innerHTML = '<b>No draft yet</b><span></span>';
       de.querySelector('span').textContent = ready()
         ? 'Paste your API key in step 4 and press Generate. Or copy the briefing packet into Claude instead.'
-        : 'Both documents and a release date first.';
+        : 'Drop both documents first.';
       host.appendChild(de);
     }
     return;
@@ -1242,7 +1097,7 @@ function renderPanes(){
   }
   $('copy').disabled = false; $('download').disabled = false;
   var pre = document.createElement('pre');
-  pre.className = 'out' + (pane === 'scaffold' ? ' doc' : '');
+  pre.className = 'out';
   pre.textContent = currentText();
   host.appendChild(pre);
 }
@@ -1283,8 +1138,7 @@ if(window.claude && typeof window.claude.use === 'function'){
 function fileName(){
   var base = (String(S.productName || S.dsName || 'product').toLowerCase()
     .replace(/\.[a-z0-9]+$/,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')) || 'product';
-  var kind = pane === 'brief' ? 'briefing-packet' : pane === 'draft' ? 'release_draft' : 'scaffold';
-  return (shortDate(S.releaseDate) || 'draft') + '_' + base + '_' + kind + '_EN.md';
+  return base + '_' + (pane === 'brief' ? 'briefing-packet' : 'release-draft') + '_EN_draft.md';
 }
 function saveViaLink(name, text){
   try{
@@ -1338,7 +1192,7 @@ function renderGenBar(){
     m.textContent = n(gen.usage.input) + ' in · ' + n(gen.usage.output) + ' out · about $' +
       (cost < 0.01 ? cost.toFixed(3) : cost.toFixed(2));
   } else if(!ready()){
-    m.textContent = 'both documents and a date first';
+    m.textContent = 'both documents first';
   } else if(!String(S.apiKey||'').trim()){
     m.textContent = 'paste an API key to enable';
   } else {
@@ -1475,7 +1329,7 @@ async function readStream(stream){
 
 /* ================= binding ================= */
 function bind(){
-  Array.prototype.forEach.call(document.querySelectorAll('#releaseDate,#slug,#productName,#category,#notes,#quote,#specsTable,#epcos,#apiKey,#rememberKey,#model,input[name=lengthMode]'),
+  Array.prototype.forEach.call(document.querySelectorAll('#productName,#category,#notes,#specsTable,#apiKey,#rememberKey,#model,input[name=lengthMode]'),
     function(el){
       var name = el.name || el.id;
       if(el.type === 'checkbox') el.checked = !!S[name];

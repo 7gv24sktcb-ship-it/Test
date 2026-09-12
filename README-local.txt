@@ -2,9 +2,10 @@ TDK RELEASE BENCH
 =================
 
 An intake bench for TDK Electronics product press releases. Drop in the
-datasheet and the product marketing form, and it assembles one briefing
-packet you paste into Claude to write the release, plus a document scaffold
-with every fixed block already in place.
+datasheet and the product marketing form, and it produces the parts that
+have to be written: the category eyebrow, the headline, the body text, and
+the two bulleted lists. Boilerplate, media contacts, the dateline and the
+download links are not written here - they belong to your release template.
 
 
 HOW TO OPEN IT
@@ -42,11 +43,11 @@ it does need internet and an API key. Everything else works offline.
 HOW IT WORKS
 ------------
 
-1. DATASHEET — drop a PDF, Word (.docx), TXT or MD file. The text is
+1. DATASHEET - drop a PDF, Word (.docx), TXT or MD file. The text is
    extracted in your browser. Datasheet tables come through as tab-separated
    rows.
 
-2. PRODUCT MARKETING FORM — same again. This is what decides positioning:
+2. PRODUCT MARKETING FORM - same again. This is what decides positioning:
    target markets, USP, customer value. A form laid out as a Word table
    keeps its label-and-value structure.
 
@@ -54,18 +55,51 @@ HOW IT WORKS
    off: PDF extraction flattens page layout, and a misread figure in a press
    release is a real liability. Edit anything wrong right there.
 
-3. RELEASE SETTINGS — the things no document carries: release date, the
-   product category slug for the download URL, the length and list
-   convention, whether to include a specs table, whether the brand list
-   includes EPCOS, and any approved quote.
+3. DRAFT SETTINGS - the product or series name and the category eyebrow, if
+   you want to override what the documents say; the length and list
+   convention; whether to include a specs table; and any notes for the
+   drafting step, such as which spec to foreground.
 
 4. DRAFT WITH CLAUDE (optional) - paste an Anthropic API key and press
    Generate. The page sends the briefing packet to the Claude API and streams
-   the release back into the Draft release tab.
+   the release text back into the Draft release tab.
 
    Without a key, the bench works exactly as before: Copy or Download the
    briefing packet and paste it into Claude yourself. Same packet, same
    rules, same result.
+
+
+WHAT IT WRITES, AND WHAT IT DOES NOT
+------------------------------------
+
+WRITES      Category eyebrow. Headline. Two to four body paragraphs: the
+            lede opening on "TDK Corporation (TSE:6762) ...", the technical
+            paragraph, the mechanical and qualification paragraph, and a
+            design-tool paragraph where the sources name one. Then "Main
+            applications" and "Main features and benefits" as bullet lists,
+            and a specs table if you asked for one.
+
+DOES NOT    No dateline - the release date is not fixed at drafting time, so
+            no date appears anywhere in the text. No "About TDK Corporation"
+            paragraph, no media contacts, no download links. No quotes: TDK
+            product releases never carry a spokesperson or customer
+            statement, and the packet forbids inventing one or leaving a
+            placeholder for one.
+
+Those standing blocks go in when you paste the text into your release
+template, where they can be checked against the latest approved release.
+
+
+THE THREE OUTPUT TABS
+---------------------
+
+BRIEFING PACKET   Everything the drafting step needs in one block:
+                  what to write, what not to write, length, voice, hard
+                  rules, your settings, and both source documents.
+
+DRAFT RELEASE     What Claude wrote, when you use step 4.
+
+PRE-FLIGHT        What to check before the draft leaves your desk.
 
 
 DRAFTING WITH CLAUDE
@@ -81,11 +115,12 @@ THE KEY         It is stored in this browser and sent to api.anthropic.com
                 and it is saved in the browser's local storage instead;
                 leave that off on a shared machine.
 
-MODEL AND COST  Claude Opus 5 by default, at $5 per million input tokens
-                and $25 per million output tokens. One draft from a typical
-                datasheet and marketing form runs a few cents; the exact
-                figure appears next to the button after each run. Claude
-                Sonnet 5 is offered as a cheaper option.
+MODEL AND COST  Claude Sonnet 5 by default, at $2 per million input tokens
+                and $10 per million output tokens - a draft from a typical
+                datasheet and marketing form runs about two cents. Claude
+                Opus 5 stays in the dropdown for a release worth spending
+                more on, at roughly 2.5 times that. The exact figure appears
+                next to the button after each run.
 
 WHAT IT SENDS   Exactly the briefing packet you can read in the first tab -
                 both source documents, your settings, and the house rules -
@@ -98,32 +133,6 @@ WHAT IT SENDS   Exactly the briefing packet you can read in the first tab -
 READ IT         The draft is a draft. Check every figure against the
                 datasheet, resolve every [VERIFY: ...] mark, and work
                 through the Pre-flight tab before it goes anywhere.
-
-
-THE THREE OUTPUT TABS
----------------------
-
-BRIEFING PACKET   Everything the drafting step needs in one block:
-                  structure, voice, hard rules, your settings, the fixed
-                  blocks, and both source documents.
-
-DOCUMENT SCAFFOLD The release with every fixed part already filled in —
-                  dateline, About TDK Corporation, download links, media
-                  contacts — and placeholders where the prose goes.
-
-PRE-FLIGHT        What to check before the draft leaves your desk.
-
-
-BEFORE ANYTHING GOES OUT
-------------------------
-
-The boilerplate and the media contacts in this file are the June 2026
-versions. Sales and headcount figures, contact names, locations and phone
-numbers all drift between releases. Verify them against the most recent
-approved release every time.
-
-The dated download URL is assigned by the web team on publication; the
-scaffold leaves a marked placeholder for it.
 
 
 PRIVACY
